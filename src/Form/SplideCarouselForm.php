@@ -771,9 +771,10 @@ class SplideCarouselForm extends EntityForm {
     // Persist options and content settings.
     $options = $form_state->getValue('options') ?? [];
     $content = $form_state->getValue('content') ?? [];
+    $content_raw = $content;
 
     // Normalize node items with weights into an ordered list.
-    $node_rows = $content['node']['items_wrapper']['items'] ?? [];
+    $node_rows = $content_raw['node']['items_wrapper']['items'] ?? [];
     $nodes = [];
     foreach ($node_rows as $row) {
       $nid = $row['node'] ?? NULL;
@@ -788,23 +789,30 @@ class SplideCarouselForm extends EntityForm {
       usort($nodes, static function ($a, $b) {
         return $a['weight'] <=> $b['weight'];
       });
-      $content['node']['items'] = $nodes;
     }
 
     // Keep only the relevant content keys.
+    $source = $content_raw['source'] ?? '';
     $content = [
-      'semantics' => $content['semantics'] ?? '',
-      'source' => $content['source'] ?? '',
-      'node' => [
-        'allowed_bundles' => array_filter($content['node']['allowed_bundles'] ?? []),
-        'items' => $content['node']['items'] ?? [],
-      ],
-      'views' => [
-        'view_machine_name' => $content['views']['view_machine_name'] ?? '',
-        'view_display_name' => $content['views']['view_display_name'] ?? '',
-        'carousel_selector' => $content['views']['carousel_selector'] ?? '',
-      ],
+      'semantics' => $content_raw['semantics'] ?? '',
+      'source' => $source,
+      'node' => [],
+      'views' => [],
     ];
+
+    if ($source === 'node') {
+      $content['node'] = [
+        'allowed_bundles' => array_filter($content_raw['node']['allowed_bundles'] ?? []),
+        'items' => $nodes,
+      ];
+    }
+    elseif ($source === 'views') {
+      $content['views'] = [
+        'view_machine_name' => $content_raw['views']['view_machine_name'] ?? '',
+        'view_display_name' => $content_raw['views']['view_display_name'] ?? '',
+        'carousel_selector' => $content_raw['views']['carousel_selector'] ?? '',
+      ];
+    }
 
     $options['content'] = $content;
     $this->entity->set('options', $options);
