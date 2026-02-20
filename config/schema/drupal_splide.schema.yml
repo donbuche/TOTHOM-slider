@@ -1,0 +1,16 @@
+drupal_splide.splide_carousel.*:
+  type: config_entity
+  label: 'Splide carousel'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    status:
+      type: boolean
+      label: 'Enabled'
+    options:
+      type: mapping
+      label: 'Splide options'
