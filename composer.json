@@ -1,0 +1,15 @@
+{
+  "name": "donbuche/drupal_splide",
+  "description": "Provides configurable Splide.js carousels as config entities.",
+  "type": "drupal-module",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Joan Galtés i Moreno",
+      "email": "donbuche@gmail.com"
+    }
+  ],
+  "require": {
+    "drupal/core": "^10 || ^11"
+  }
+}
