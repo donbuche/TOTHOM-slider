@@ -4,6 +4,8 @@ namespace Drupal\drupal_splide\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Form controller for Splide carousel add/edit forms.
@@ -39,6 +41,165 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Enabled'),
       '#default_value' => $carousel->status(),
+    ];
+
+    $form['content'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Carousel content'),
+      '#open' => TRUE,
+      '#tree' => TRUE,
+    ];
+
+    $form['content']['semantics'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Carousel semantics'),
+      '#options' => [
+        'content' => $this->t('Content carousel'),
+        'decorative' => $this->t('Decorative carousel'),
+      ],
+      '#default_value' => $options['content']['semantics'] ?? 'content',
+    ];
+
+    $form['content']['semantics_markup_content'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Show HTML example'),
+      '#open' => FALSE,
+      '#markup' => '<p><strong>HTML example for Content carousels</strong></p><pre><code>&lt;section class="splide" aria-label="Splide Basic HTML Example"&gt;
+  &lt;div class="splide__track"&gt;
+    &lt;ul class="splide__list"&gt;
+      &lt;li class="splide__slide"&gt;Slide 01&lt;/li&gt;
+      &lt;li class="splide__slide"&gt;Slide 02&lt;/li&gt;
+      &lt;li class="splide__slide"&gt;Slide 03&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>',
+      '#states' => [
+        'visible' => [
+          ':input[name="content[semantics]"]' => ['value' => 'content'],
+        ],
+      ],
+    ];
+
+    $form['content']['semantics_markup_decorative'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Show HTML example'),
+      '#open' => FALSE,
+      '#markup' => '<p><strong>HTML example for Decorative carousels</strong></p><pre><code>&lt;div class="splide" role="group" aria-label="Splide Basic HTML Example"&gt;
+  &lt;div class="splide__track"&gt;
+    &lt;ul class="splide__list"&gt;
+      &lt;li class="splide__slide"&gt;Slide 01&lt;/li&gt;
+      &lt;li class="splide__slide"&gt;Slide 02&lt;/li&gt;
+      &lt;li class="splide__slide"&gt;Slide 03&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>',
+      '#states' => [
+        'visible' => [
+          ':input[name="content[semantics]"]' => ['value' => 'decorative'],
+        ],
+      ],
+    ];
+
+    $form['content']['source'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Content source'),
+      '#options' => [
+        'node' => $this->t('Content provided by nodes'),
+        'views' => $this->t('Content provided by Views'),
+      ],
+      '#default_value' => $options['content']['source'] ?? '',
+    ];
+
+    $form['content']['node'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Content provided by nodes'),
+      '#open' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="content[source]"]' => ['value' => 'node'],
+        ],
+      ],
+    ];
+
+    $allowed_bundles_default = $options['content']['node']['allowed_bundles'] ?? [];
+    $allowed_bundles = array_filter($form_state->getValue(['content', 'node', 'allowed_bundles']) ?? $allowed_bundles_default);
+
+    $form['content']['node']['allowed_bundles'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Allowed content types'),
+      '#options' => $this->getContentTypeOptions(),
+      '#default_value' => $allowed_bundles_default,
+      '#description' => $this->t('Select at least one content type to enable the node autocomplete below.'),
+      '#ajax' => [
+        'callback' => '::updateNodeAutocomplete',
+        'wrapper' => 'splide-node-autocomplete-wrapper',
+      ],
+    ];
+
+    $form['content']['node']['items_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'splide-node-autocomplete-wrapper'],
+    ];
+
+    $default_node_ids = $options['content']['node']['items'] ?? [];
+    $items_count = $form_state->get('node_items_count');
+    if ($items_count === NULL) {
+      $items_count = max(1, count($default_node_ids));
+      $form_state->set('node_items_count', $items_count);
+    }
+
+    $form['content']['node']['items_wrapper']['items'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Selected nodes'),
+    ];
+
+    for ($i = 0; $i < $items_count; $i++) {
+      $form['content']['node']['items_wrapper']['items'][$i] = [
+        '#type' => 'entity_autocomplete',
+        '#title' => $this->t('Node title'),
+        '#target_type' => 'node',
+        '#selection_settings' => [
+          'target_bundles' => $allowed_bundles,
+        ],
+        '#default_value' => $this->loadSingleNodeFromId($default_node_ids[$i] ?? NULL),
+        '#description' => $this->t('Start typing to search nodes.'),
+      ];
+    }
+
+    $form['content']['node']['items_wrapper']['add_more'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add another node'),
+      '#submit' => ['::addOneNode'],
+      '#ajax' => [
+        'callback' => '::updateNodeAutocomplete',
+        'wrapper' => 'splide-node-autocomplete-wrapper',
+      ],
+    ];
+
+    $form['content']['views'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Content provided by Views'),
+      '#open' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="content[source]"]' => ['value' => 'views'],
+        ],
+      ],
+    ];
+    $form['content']['views']['view_machine_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('View machine name'),
+      '#default_value' => $options['content']['views']['view_machine_name'] ?? '',
+    ];
+    $form['content']['views']['view_display_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('View display name'),
+      '#default_value' => $options['content']['views']['view_display_name'] ?? '',
+    ];
+    $form['content']['views']['carousel_selector'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('CSS selector for the carousel'),
+      '#default_value' => $options['content']['views']['carousel_selector'] ?? '',
     ];
 
     $form['options'] = [
@@ -519,6 +680,55 @@ class SplideCarouselForm extends EntityForm {
     ];
 
     return parent::form($form, $form_state);
+  }
+
+  /**
+   * AJAX callback to refresh node autocomplete.
+   */
+  public function updateNodeAutocomplete(array &$form, FormStateInterface $form_state): array {
+    return $form['content']['node']['items_wrapper'];
+  }
+
+  /**
+   * Add one more node autocomplete element.
+   */
+  public function addOneNode(array &$form, FormStateInterface $form_state): void {
+    $count = $form_state->get('node_items_count') ?? 1;
+    $form_state->set('node_items_count', $count + 1);
+    $form_state->setRebuild();
+  }
+
+  /**
+   * Get content type options.
+   */
+  protected function getContentTypeOptions(): array {
+    $types = NodeType::loadMultiple();
+    $options = [];
+    foreach ($types as $type) {
+      $options[$type->id()] = $type->label();
+    }
+    return $options;
+  }
+
+  /**
+   * Load nodes for default values.
+   */
+  protected function loadNodesFromIds(array $ids): array {
+    $ids = array_filter($ids);
+    if (empty($ids)) {
+      return [];
+    }
+    return Node::loadMultiple($ids);
+  }
+
+  /**
+   * Load a single node for default value.
+   */
+  protected function loadSingleNodeFromId(?string $id): ?Node {
+    if (empty($id)) {
+      return NULL;
+    }
+    return Node::load($id);
   }
 
   /**
