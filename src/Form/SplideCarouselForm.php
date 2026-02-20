@@ -19,6 +19,14 @@ class SplideCarouselForm extends EntityForm {
     /** @var \Drupal\drupal_splide\Entity\SplideCarousel $carousel */
     $carousel = $this->entity;
     $options = $carousel->get('options') ?? [];
+    $general = $options['general'] ?? [];
+    $layout = $options['layout'] ?? [];
+    $navigation = $options['navigation'] ?? [];
+    $autoplay = $options['autoplay'] ?? [];
+    $lazy = $options['lazy'] ?? [];
+    $drag = $options['drag'] ?? [];
+    $accessibility = $options['accessibility'] ?? [];
+    $behavior = $options['behavior'] ?? [];
 
     $form['label'] = [
       '#type' => 'textfield',
@@ -142,6 +150,9 @@ class SplideCarouselForm extends EntityForm {
     ];
 
     $default_node_ids = $options['content']['node']['items'] ?? [];
+    if (!empty($default_node_ids) && is_array($default_node_ids) && isset($default_node_ids[0]['id'])) {
+      $default_node_ids = array_column($default_node_ids, 'id');
+    }
     $items_count = $form_state->get('node_items_count');
     if ($items_count === NULL) {
       $items_count = max(1, count($default_node_ids));
@@ -149,20 +160,42 @@ class SplideCarouselForm extends EntityForm {
     }
 
     $form['content']['node']['items_wrapper']['items'] = [
-      '#type' => 'fieldset',
+      '#type' => 'table',
       '#title' => $this->t('Selected nodes'),
+      '#header' => [
+        $this->t('Node title'),
+        $this->t('Weight'),
+      ],
+      '#tabledrag' => [
+        [
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'splide-node-weight',
+        ],
+      ],
     ];
 
     for ($i = 0; $i < $items_count; $i++) {
-      $form['content']['node']['items_wrapper']['items'][$i] = [
+      $form['content']['node']['items_wrapper']['items'][$i]['#attributes']['class'][] = 'draggable';
+
+      $form['content']['node']['items_wrapper']['items'][$i]['node'] = [
         '#type' => 'entity_autocomplete',
         '#title' => $this->t('Node title'),
+        '#title_display' => 'invisible',
         '#target_type' => 'node',
         '#selection_settings' => [
           'target_bundles' => $allowed_bundles,
         ],
         '#default_value' => $this->loadSingleNodeFromId($default_node_ids[$i] ?? NULL),
         '#description' => $this->t('Start typing to search nodes.'),
+      ];
+
+      $form['content']['node']['items_wrapper']['items'][$i]['weight'] = [
+        '#type' => 'weight',
+        '#title' => $this->t('Weight'),
+        '#title_display' => 'invisible',
+        '#default_value' => $i,
+        '#attributes' => ['class' => ['splide-node-weight']],
       ];
     }
 
@@ -222,72 +255,72 @@ class SplideCarouselForm extends EntityForm {
         'loop' => $this->t('loop'),
         'fade' => $this->t('fade'),
       ],
-      '#default_value' => $options['type'] ?? 'slide',
+      '#default_value' => $general['type'] ?? 'slide',
     ];
     $form['options']['general']['start'] = [
       '#type' => 'number',
       '#title' => $this->t('Start index'),
-      '#default_value' => $options['start'] ?? 0,
+      '#default_value' => $general['start'] ?? 0,
     ];
     $form['options']['general']['perPage'] = [
       '#type' => 'number',
       '#title' => $this->t('Per page'),
-      '#default_value' => $options['perPage'] ?? 1,
+      '#default_value' => $general['perPage'] ?? 1,
     ];
     $form['options']['general']['perMove'] = [
       '#type' => 'number',
       '#title' => $this->t('Per move'),
-      '#default_value' => $options['perMove'] ?? 1,
+      '#default_value' => $general['perMove'] ?? 1,
     ];
     $form['options']['general']['gap'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Gap'),
       '#description' => $this->t('CSS size, e.g. 1rem or 10px.'),
-      '#default_value' => $options['gap'] ?? '',
+      '#default_value' => $general['gap'] ?? '',
     ];
     $form['options']['general']['padding'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Padding'),
       '#description' => $this->t('CSS size or object notation (leave empty for none).'),
-      '#default_value' => $options['padding'] ?? '',
+      '#default_value' => $general['padding'] ?? '',
     ];
     $form['options']['general']['focus'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Focus'),
       '#description' => $this->t('center, left, right, number, or empty.'),
-      '#default_value' => $options['focus'] ?? '',
+      '#default_value' => $general['focus'] ?? '',
     ];
     $form['options']['general']['rewind'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Rewind'),
-      '#default_value' => $options['rewind'] ?? FALSE,
+      '#default_value' => $general['rewind'] ?? FALSE,
     ];
     $form['options']['general']['rewindSpeed'] = [
       '#type' => 'number',
       '#title' => $this->t('Rewind speed (ms)'),
-      '#default_value' => $options['rewindSpeed'] ?? '',
+      '#default_value' => $general['rewindSpeed'] ?? '',
     ];
     $form['options']['general']['rewindByDrag'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Rewind by drag'),
-      '#default_value' => $options['rewindByDrag'] ?? FALSE,
+      '#default_value' => $general['rewindByDrag'] ?? FALSE,
     ];
     $form['options']['general']['speed'] = [
       '#type' => 'number',
       '#title' => $this->t('Speed (ms)'),
-      '#default_value' => $options['speed'] ?? 400,
+      '#default_value' => $general['speed'] ?? 400,
     ];
     $form['options']['general']['easing'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Easing'),
       '#description' => $this->t('CSS easing string, e.g. ease.'),
-      '#default_value' => $options['easing'] ?? '',
+      '#default_value' => $general['easing'] ?? '',
     ];
     $form['options']['general']['easingFunc'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Easing function'),
       '#description' => $this->t('JS function name (advanced).'),
-      '#default_value' => $options['easingFunc'] ?? '',
+      '#default_value' => $general['easingFunc'] ?? '',
     ];
 
     $form['options']['layout'] = [
@@ -299,44 +332,44 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => $this->t('Width'),
       '#description' => $this->t('CSS size (e.g. 100%, 600px).'),
-      '#default_value' => $options['width'] ?? '',
+      '#default_value' => $layout['width'] ?? '',
     ];
     $form['options']['layout']['height'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Height'),
       '#description' => $this->t('CSS size (e.g. 400px).'),
-      '#default_value' => $options['height'] ?? '',
+      '#default_value' => $layout['height'] ?? '',
     ];
     $form['options']['layout']['fixedWidth'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Fixed width'),
-      '#default_value' => $options['fixedWidth'] ?? '',
+      '#default_value' => $layout['fixedWidth'] ?? '',
     ];
     $form['options']['layout']['fixedHeight'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Fixed height'),
-      '#default_value' => $options['fixedHeight'] ?? '',
+      '#default_value' => $layout['fixedHeight'] ?? '',
     ];
     $form['options']['layout']['heightRatio'] = [
       '#type' => 'number',
       '#step' => '0.01',
       '#title' => $this->t('Height ratio'),
-      '#default_value' => $options['heightRatio'] ?? '',
+      '#default_value' => $layout['heightRatio'] ?? '',
     ];
     $form['options']['layout']['autoWidth'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Auto width'),
-      '#default_value' => $options['autoWidth'] ?? FALSE,
+      '#default_value' => $layout['autoWidth'] ?? FALSE,
     ];
     $form['options']['layout']['autoHeight'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Auto height'),
-      '#default_value' => $options['autoHeight'] ?? FALSE,
+      '#default_value' => $layout['autoHeight'] ?? FALSE,
     ];
     $form['options']['layout']['cover'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Cover'),
-      '#default_value' => $options['cover'] ?? FALSE,
+      '#default_value' => $layout['cover'] ?? FALSE,
     ];
     $form['options']['layout']['trimSpace'] = [
       '#type' => 'select',
@@ -347,22 +380,22 @@ class SplideCarouselForm extends EntityForm {
         'true' => $this->t('true'),
         'false' => $this->t('false'),
       ],
-      '#default_value' => $options['trimSpace'] ?? 'true',
+      '#default_value' => $layout['trimSpace'] ?? 'true',
     ];
     $form['options']['layout']['omitEnd'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Omit end'),
-      '#default_value' => $options['omitEnd'] ?? FALSE,
+      '#default_value' => $layout['omitEnd'] ?? FALSE,
     ];
     $form['options']['layout']['clones'] = [
       '#type' => 'number',
       '#title' => $this->t('Clones'),
-      '#default_value' => $options['clones'] ?? '',
+      '#default_value' => $layout['clones'] ?? '',
     ];
     $form['options']['layout']['cloneStatus'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Clone status'),
-      '#default_value' => $options['cloneStatus'] ?? TRUE,
+      '#default_value' => $layout['cloneStatus'] ?? TRUE,
     ];
 
     $form['options']['navigation'] = [
@@ -373,17 +406,17 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['navigation']['arrows'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Arrows'),
-      '#default_value' => $options['arrows'] ?? TRUE,
+      '#default_value' => $navigation['arrows'] ?? TRUE,
     ];
     $form['options']['navigation']['pagination'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pagination'),
-      '#default_value' => $options['pagination'] ?? TRUE,
+      '#default_value' => $navigation['pagination'] ?? TRUE,
     ];
     $form['options']['navigation']['paginationKeyboard'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pagination keyboard'),
-      '#default_value' => $options['paginationKeyboard'] ?? TRUE,
+      '#default_value' => $navigation['paginationKeyboard'] ?? TRUE,
     ];
     $form['options']['navigation']['paginationDirection'] = [
       '#type' => 'select',
@@ -393,29 +426,29 @@ class SplideCarouselForm extends EntityForm {
         'rtl' => $this->t('rtl'),
         'ttb' => $this->t('ttb'),
       ],
-      '#default_value' => $options['paginationDirection'] ?? 'ltr',
+      '#default_value' => $navigation['paginationDirection'] ?? 'ltr',
     ];
     $form['options']['navigation']['arrowPath'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Arrow path'),
       '#description' => $this->t('SVG path string.'),
-      '#default_value' => $options['arrowPath'] ?? '',
+      '#default_value' => $navigation['arrowPath'] ?? '',
     ];
     $form['options']['navigation']['slideFocus'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Slide focus'),
-      '#default_value' => $options['slideFocus'] ?? TRUE,
+      '#default_value' => $navigation['slideFocus'] ?? TRUE,
     ];
     $form['options']['navigation']['isNavigation'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Is navigation'),
-      '#default_value' => $options['isNavigation'] ?? FALSE,
+      '#default_value' => $navigation['isNavigation'] ?? FALSE,
     ];
     $form['options']['navigation']['focusableNodes'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Focusable nodes'),
       '#description' => $this->t('CSS selectors, comma-separated.'),
-      '#default_value' => $options['focusableNodes'] ?? '',
+      '#default_value' => $navigation['focusableNodes'] ?? '',
     ];
 
     $form['options']['autoplay'] = [
@@ -426,27 +459,27 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['autoplay']['autoplay'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Autoplay'),
-      '#default_value' => $options['autoplay'] ?? FALSE,
+      '#default_value' => $autoplay['autoplay'] ?? FALSE,
     ];
     $form['options']['autoplay']['interval'] = [
       '#type' => 'number',
       '#title' => $this->t('Interval (ms)'),
-      '#default_value' => $options['interval'] ?? 5000,
+      '#default_value' => $autoplay['interval'] ?? 5000,
     ];
     $form['options']['autoplay']['pauseOnHover'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pause on hover'),
-      '#default_value' => $options['pauseOnHover'] ?? TRUE,
+      '#default_value' => $autoplay['pauseOnHover'] ?? TRUE,
     ];
     $form['options']['autoplay']['pauseOnFocus'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pause on focus'),
-      '#default_value' => $options['pauseOnFocus'] ?? TRUE,
+      '#default_value' => $autoplay['pauseOnFocus'] ?? TRUE,
     ];
     $form['options']['autoplay']['resetProgress'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Reset progress'),
-      '#default_value' => $options['resetProgress'] ?? TRUE,
+      '#default_value' => $autoplay['resetProgress'] ?? TRUE,
     ];
 
     $form['options']['lazy'] = [
@@ -462,12 +495,12 @@ class SplideCarouselForm extends EntityForm {
         'nearby' => $this->t('nearby'),
         'sequential' => $this->t('sequential'),
       ],
-      '#default_value' => $options['lazyLoad'] ?? '',
+      '#default_value' => $lazy['lazyLoad'] ?? '',
     ];
     $form['options']['lazy']['preloadPages'] = [
       '#type' => 'number',
       '#title' => $this->t('Preload pages'),
-      '#default_value' => $options['preloadPages'] ?? '',
+      '#default_value' => $lazy['preloadPages'] ?? '',
     ];
 
     $form['options']['drag'] = [
@@ -483,37 +516,37 @@ class SplideCarouselForm extends EntityForm {
         'false' => $this->t('false'),
         'free' => $this->t('free'),
       ],
-      '#default_value' => $options['drag'] ?? 'true',
+      '#default_value' => $drag['drag'] ?? 'true',
     ];
     $form['options']['drag']['snap'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Snap'),
-      '#default_value' => $options['snap'] ?? TRUE,
+      '#default_value' => $drag['snap'] ?? TRUE,
     ];
     $form['options']['drag']['noDrag'] = [
       '#type' => 'textfield',
       '#title' => $this->t('No drag selectors'),
-      '#default_value' => $options['noDrag'] ?? '',
+      '#default_value' => $drag['noDrag'] ?? '',
     ];
     $form['options']['drag']['dragMinThreshold'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Drag min threshold'),
-      '#default_value' => $options['dragMinThreshold'] ?? '',
+      '#default_value' => $drag['dragMinThreshold'] ?? '',
     ];
     $form['options']['drag']['flickPower'] = [
       '#type' => 'number',
       '#title' => $this->t('Flick power'),
-      '#default_value' => $options['flickPower'] ?? '',
+      '#default_value' => $drag['flickPower'] ?? '',
     ];
     $form['options']['drag']['flickMaxPages'] = [
       '#type' => 'number',
       '#title' => $this->t('Flick max pages'),
-      '#default_value' => $options['flickMaxPages'] ?? '',
+      '#default_value' => $drag['flickMaxPages'] ?? '',
     ];
     $form['options']['drag']['waitForTransition'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Wait for transition'),
-      '#default_value' => $options['waitForTransition'] ?? TRUE,
+      '#default_value' => $drag['waitForTransition'] ?? TRUE,
     ];
     $form['options']['drag']['wheel'] = [
       '#type' => 'select',
@@ -523,22 +556,22 @@ class SplideCarouselForm extends EntityForm {
         'false' => $this->t('false'),
         'global' => $this->t('global'),
       ],
-      '#default_value' => $options['wheel'] ?? 'false',
+      '#default_value' => $drag['wheel'] ?? 'false',
     ];
     $form['options']['drag']['wheelMinThreshold'] = [
       '#type' => 'number',
       '#title' => $this->t('Wheel min threshold'),
-      '#default_value' => $options['wheelMinThreshold'] ?? '',
+      '#default_value' => $drag['wheelMinThreshold'] ?? '',
     ];
     $form['options']['drag']['wheelSleep'] = [
       '#type' => 'number',
       '#title' => $this->t('Wheel sleep (ms)'),
-      '#default_value' => $options['wheelSleep'] ?? '',
+      '#default_value' => $drag['wheelSleep'] ?? '',
     ];
     $form['options']['drag']['releaseWheel'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Release wheel'),
-      '#default_value' => $options['releaseWheel'] ?? FALSE,
+      '#default_value' => $drag['releaseWheel'] ?? FALSE,
     ];
 
     $form['options']['accessibility'] = [
@@ -549,23 +582,23 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['accessibility']['role'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Role'),
-      '#default_value' => $options['role'] ?? '',
+      '#default_value' => $accessibility['role'] ?? '',
     ];
     $form['options']['accessibility']['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
-      '#default_value' => $options['label'] ?? '',
+      '#default_value' => $accessibility['label'] ?? '',
     ];
     $form['options']['accessibility']['labelledby'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Labelledby'),
-      '#default_value' => $options['labelledby'] ?? '',
+      '#default_value' => $accessibility['labelledby'] ?? '',
     ];
     $form['options']['accessibility']['focusableNodes'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Focusable nodes'),
       '#description' => $this->t('CSS selectors, comma-separated.'),
-      '#default_value' => $options['focusableNodes'] ?? '',
+      '#default_value' => $accessibility['focusableNodes'] ?? '',
     ];
 
     $form['options']['behavior'] = [
@@ -581,7 +614,7 @@ class SplideCarouselForm extends EntityForm {
         'rtl' => $this->t('rtl'),
         'ttb' => $this->t('ttb'),
       ],
-      '#default_value' => $options['direction'] ?? 'ltr',
+      '#default_value' => $behavior['direction'] ?? 'ltr',
     ];
     $form['options']['behavior']['mediaQuery'] = [
       '#type' => 'select',
@@ -590,12 +623,12 @@ class SplideCarouselForm extends EntityForm {
         'min' => $this->t('min'),
         'max' => $this->t('max'),
       ],
-      '#default_value' => $options['mediaQuery'] ?? 'max',
+      '#default_value' => $behavior['mediaQuery'] ?? 'max',
     ];
     $form['options']['behavior']['updateOnMove'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Update on move'),
-      '#default_value' => $options['updateOnMove'] ?? TRUE,
+      '#default_value' => $behavior['updateOnMove'] ?? TRUE,
     ];
     $form['options']['behavior']['keyboard'] = [
       '#type' => 'select',
@@ -605,12 +638,12 @@ class SplideCarouselForm extends EntityForm {
         'false' => $this->t('false'),
         'global' => $this->t('global'),
       ],
-      '#default_value' => $options['keyboard'] ?? 'false',
+      '#default_value' => $behavior['keyboard'] ?? 'false',
     ];
     $form['options']['behavior']['live'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Live'),
-      '#default_value' => $options['live'] ?? TRUE,
+      '#default_value' => $behavior['live'] ?? TRUE,
     ];
     $form['options']['behavior']['destroy'] = [
       '#type' => 'select',
@@ -621,7 +654,7 @@ class SplideCarouselForm extends EntityForm {
         'false' => $this->t('false'),
         'completely' => $this->t('completely'),
       ],
-      '#default_value' => $options['destroy'] ?? '',
+      '#default_value' => $behavior['destroy'] ?? '',
     ];
 
     $form['options']['breakpoints'] = [
@@ -633,7 +666,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'textarea',
       '#title' => $this->t('Breakpoints JSON'),
       '#description' => $this->t('JSON object of breakpoint => options.'),
-      '#default_value' => $options['breakpoints'] ?? '',
+      '#default_value' => $options['breakpoints']['items'] ?? '',
     ];
 
     $form['options']['reducedMotion'] = [
@@ -665,7 +698,7 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['classes']['items'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Classes (key: value per line)'),
-      '#default_value' => $options['classes'] ?? '',
+      '#default_value' => $options['classes']['items'] ?? '',
     ];
 
     $form['options']['i18n'] = [
@@ -676,7 +709,7 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['i18n']['items'] = [
       '#type' => 'textarea',
       '#title' => $this->t('i18n (key: value per line)'),
-      '#default_value' => $options['i18n'] ?? '',
+      '#default_value' => $options['i18n']['items'] ?? '',
     ];
 
     return parent::form($form, $form_state);
@@ -735,6 +768,47 @@ class SplideCarouselForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state): int {
+    // Persist options and content settings.
+    $options = $form_state->getValue('options') ?? [];
+    $content = $form_state->getValue('content') ?? [];
+
+    // Normalize node items with weights into an ordered list.
+    $node_rows = $content['node']['items_wrapper']['items'] ?? [];
+    $nodes = [];
+    foreach ($node_rows as $row) {
+      $nid = $row['node'] ?? NULL;
+      if ($nid) {
+        $nodes[] = [
+          'id' => $nid,
+          'weight' => (int) ($row['weight'] ?? 0),
+        ];
+      }
+    }
+    if (!empty($nodes)) {
+      usort($nodes, static function ($a, $b) {
+        return $a['weight'] <=> $b['weight'];
+      });
+      $content['node']['items'] = $nodes;
+    }
+
+    // Keep only the relevant content keys.
+    $content = [
+      'semantics' => $content['semantics'] ?? '',
+      'source' => $content['source'] ?? '',
+      'node' => [
+        'allowed_bundles' => array_filter($content['node']['allowed_bundles'] ?? []),
+        'items' => $content['node']['items'] ?? [],
+      ],
+      'views' => [
+        'view_machine_name' => $content['views']['view_machine_name'] ?? '',
+        'view_display_name' => $content['views']['view_display_name'] ?? '',
+        'carousel_selector' => $content['views']['carousel_selector'] ?? '',
+      ],
+    ];
+
+    $options['content'] = $content;
+    $this->entity->set('options', $options);
+
     $status = parent::save($form, $form_state);
 
     $this->messenger()->addStatus(
