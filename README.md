@@ -7,6 +7,8 @@ Provides configurable Splide.js carousels as config entities.
 Enable the module:
 
 ```
+composer require donbuche/drupal_splide
+
 drush en drupal_splide -y
 drush cr
 ```
