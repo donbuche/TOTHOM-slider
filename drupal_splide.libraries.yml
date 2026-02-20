@@ -1,0 +1,6 @@
+splide:
+  css:
+    theme:
+      /libraries/splidejs/splide/dist/css/splide.min.css: { minified: true }
+  js:
+    /libraries/splidejs/splide/dist/js/splide.min.js: { minified: true }

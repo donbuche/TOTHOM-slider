@@ -1,0 +1,6 @@
+drupal_splide.carousels:
+  title: 'Splide carousels'
+  description: 'Manage Splide carousels.'
+  route_name: entity.splide_carousel.collection
+  parent: system.admin_config_content
+  weight: 50

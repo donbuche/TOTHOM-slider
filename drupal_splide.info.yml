@@ -1,0 +1,5 @@
+name: Drupal Splide
+type: module
+description: 'Provides configurable Splide.js carousels.'
+core_version_requirement: '^10 || ^11'
+package: Custom
