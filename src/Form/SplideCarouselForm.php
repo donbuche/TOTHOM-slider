@@ -31,7 +31,7 @@ class SplideCarouselForm extends EntityForm {
 
     $form['label'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Title'),
+      '#title' => $this->t('Administrative title'),
       '#default_value' => $carousel->label(),
       '#required' => TRUE,
     ];
@@ -59,9 +59,17 @@ class SplideCarouselForm extends EntityForm {
       '#tree' => TRUE,
     ];
 
+    $form['content']['aria_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('ARIA label'),
+      '#default_value' => $options['content']['aria_label'] ?? '',
+      '#description' => $this->t('Accessible label for the carousel container.'),
+    ];
+
     $form['content']['semantics'] = [
       '#type' => 'radios',
       '#title' => $this->t('Carousel semantics'),
+      '#description' => $this->t('Use “Content carousel” when the slides are part of the main content (e.g. products, cards, gallery). Use “Decorative carousel” when the slides are purely ornamental; it will be rendered with decorative semantics.'),
       '#options' => [
         'content' => $this->t('Content carousel'),
         'decorative' => $this->t('Decorative carousel'),
@@ -131,18 +139,21 @@ class SplideCarouselForm extends EntityForm {
     ];
 
     $allowed_bundles_default = $options['content']['node']['allowed_bundles'] ?? [];
-    $allowed_bundles = array_filter($form_state->getValue(['content', 'node', 'allowed_bundles']) ?? $allowed_bundles_default);
+    $user_input = $form_state->getUserInput();
+    $allowed_bundles_input = $user_input['content']['node']['allowed_bundles'] ?? NULL;
+    $allowed_bundles_source = is_array($allowed_bundles_input) ? $allowed_bundles_input : $allowed_bundles_default;
+    $allowed_bundles = array_filter($allowed_bundles_source);
+    $allowed_bundles = array_filter($allowed_bundles, static function ($value, $key) {
+      return is_string($key) && $value && !str_ends_with($key, '_view_mode');
+    }, ARRAY_FILTER_USE_BOTH);
+    $allowed_bundles_list = array_keys($allowed_bundles);
 
     $form['content']['node']['allowed_bundles'] = [
-      '#type' => 'checkboxes',
+      '#type' => 'fieldset',
       '#title' => $this->t('Allowed content types'),
-      '#options' => $this->getContentTypeOptions(),
-      '#default_value' => $allowed_bundles_default,
+      '#attributes' => ['class' => ['splide-allowed-bundles']],
       '#description' => $this->t('Select at least one content type to enable the node autocomplete below.'),
-      '#ajax' => [
-        'callback' => '::updateNodeAutocomplete',
-        'wrapper' => 'splide-node-autocomplete-wrapper',
-      ],
+      '#tree' => TRUE,
     ];
 
     $form['content']['node']['items_wrapper'] = [
@@ -153,6 +164,10 @@ class SplideCarouselForm extends EntityForm {
     $default_node_ids = $options['content']['node']['items'] ?? [];
     if (!empty($default_node_ids) && is_array($default_node_ids) && isset($default_node_ids[0]['id'])) {
       $default_node_ids = array_column($default_node_ids, 'id');
+    }
+    if (!empty($default_node_ids)) {
+      $valid_nodes = Node::loadMultiple($default_node_ids);
+      $default_node_ids = array_values(array_keys($valid_nodes));
     }
     $items_count = $form_state->get('node_items_count');
     if ($items_count === NULL) {
@@ -166,6 +181,7 @@ class SplideCarouselForm extends EntityForm {
       '#header' => [
         $this->t('Node title'),
         $this->t('Weight'),
+        $this->t('Operations'),
       ],
       '#tabledrag' => [
         [
@@ -185,7 +201,7 @@ class SplideCarouselForm extends EntityForm {
         '#title_display' => 'invisible',
         '#target_type' => 'node',
         '#selection_settings' => [
-          'target_bundles' => $allowed_bundles,
+          'target_bundles' => $allowed_bundles_list,
         ],
         '#default_value' => $this->loadSingleNodeFromId($default_node_ids[$i] ?? NULL),
         '#description' => $this->t('Start typing to search nodes.'),
@@ -198,17 +214,55 @@ class SplideCarouselForm extends EntityForm {
         '#default_value' => $i,
         '#attributes' => ['class' => ['splide-node-weight']],
       ];
+      $form['content']['node']['items_wrapper']['items'][$i]['remove'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove'),
+        '#name' => 'remove_node_' . $i,
+        '#submit' => ['::removeNode'],
+        '#limit_validation_errors' => [],
+        '#ajax' => [
+          'callback' => '::updateNodeAutocomplete',
+          'wrapper' => 'splide-node-autocomplete-wrapper',
+        ],
+      ];
     }
 
     $form['content']['node']['items_wrapper']['add_more'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add another node'),
       '#submit' => ['::addOneNode'],
+      '#limit_validation_errors' => [],
       '#ajax' => [
         'callback' => '::updateNodeAutocomplete',
         'wrapper' => 'splide-node-autocomplete-wrapper',
       ],
     ];
+
+    $view_mode_options = $this->getNodeViewModeOptions();
+    $saved_view_modes = $options['content']['node']['view_modes'] ?? [];
+    foreach ($this->getContentTypeOptions() as $bundle_id => $bundle_label) {
+      $form['content']['node']['allowed_bundles'][$bundle_id] = [
+        '#type' => 'checkbox',
+        '#title' => $bundle_label,
+        '#default_value' => !empty($allowed_bundles_default[$bundle_id]) ? 1 : 0,
+        '#ajax' => [
+          'callback' => '::updateNodeAutocomplete',
+          'wrapper' => 'splide-node-autocomplete-wrapper',
+        ],
+      ];
+      $form['content']['node']['allowed_bundles'][$bundle_id . '_view_mode'] = [
+        '#type' => 'select',
+        '#title' => $this->t('@type view mode', ['@type' => $bundle_label]),
+        '#options' => $view_mode_options,
+        '#default_value' => $saved_view_modes[$bundle_id] ?? '',
+        '#empty_option' => $this->t('- Use default -'),
+        '#states' => [
+          'visible' => [
+            ':input[name="content[node][allowed_bundles][' . $bundle_id . ']"]' => ['checked' => TRUE],
+          ],
+        ],
+      ];
+    }
 
     $form['content']['views'] = [
       '#type' => 'details',
@@ -730,7 +784,14 @@ class SplideCarouselForm extends EntityForm {
       '#default_value' => $options['i18n']['items'] ?? '',
     ];
 
-    return parent::form($form, $form_state);
+    $form = parent::form($form, $form_state);
+    $form['cache_notice'] = [
+      '#type' => 'item',
+      '#markup' => '<small class="description">' . $this->t('After creating or updating a carousel, you may need to clear caches to make the block available and apply changes.') . '</small>',
+      '#weight' => 1000,
+    ];
+
+    return $form;
   }
 
   /**
@@ -750,6 +811,26 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * Remove a node row from the table.
+   */
+  public function removeNode(array &$form, FormStateInterface $form_state): void {
+    $trigger = $form_state->getTriggeringElement();
+    $name = $trigger['#name'] ?? '';
+    if (preg_match('/remove_node_(\d+)/', $name, $matches)) {
+      $index = (int) $matches[1];
+      $values = $form_state->getValue(['content', 'node', 'items_wrapper', 'items']) ?? [];
+      if (isset($values[$index])) {
+        unset($values[$index]);
+        $values = array_values($values);
+        $form_state->setValue(['content', 'node', 'items_wrapper', 'items'], $values);
+      }
+      $count = max(1, ($form_state->get('node_items_count') ?? 1) - 1);
+      $form_state->set('node_items_count', $count);
+    }
+    $form_state->setRebuild();
+  }
+
+  /**
    * Get content type options.
    */
   protected function getContentTypeOptions(): array {
@@ -759,6 +840,14 @@ class SplideCarouselForm extends EntityForm {
       $options[$type->id()] = $type->label();
     }
     return $options;
+  }
+
+  /**
+   * Returns view mode options for node entities.
+   */
+  protected function getNodeViewModeOptions(): array {
+    $repository = \Drupal::service('entity_display.repository');
+    return $repository->getViewModeOptions('node');
   }
 
   /**
@@ -819,7 +908,7 @@ class SplideCarouselForm extends EntityForm {
     $nodes = [];
     foreach ($node_rows as $row) {
       $nid = $row['node'] ?? NULL;
-      if ($nid) {
+      if ($nid && Node::load($nid)) {
         $nodes[] = [
           'id' => $nid,
           'weight' => (int) ($row['weight'] ?? 0),
@@ -835,6 +924,7 @@ class SplideCarouselForm extends EntityForm {
     // Keep only the relevant content keys.
     $source = $content_raw['source'] ?? '';
     $content = [
+      'aria_label' => $content_raw['aria_label'] ?? '',
       'semantics' => $content_raw['semantics'] ?? '',
       'source' => $source,
       'node' => [],
@@ -842,9 +932,22 @@ class SplideCarouselForm extends EntityForm {
     ];
 
     if ($source === 'node') {
+      $view_modes = [];
+      foreach ($content_raw['node']['allowed_bundles'] ?? [] as $bundle_id => $enabled) {
+        if (empty($enabled)) {
+          continue;
+        }
+        if (str_ends_with($bundle_id, '_view_mode')) {
+          continue;
+        }
+        $view_modes[$bundle_id] = $content_raw['node']['allowed_bundles'][$bundle_id . '_view_mode'] ?? '';
+      }
       $content['node'] = [
-        'allowed_bundles' => array_filter($content_raw['node']['allowed_bundles'] ?? []),
+        'allowed_bundles' => array_filter($content_raw['node']['allowed_bundles'] ?? [], static function ($value, $key) {
+          return is_string($key) && $value && !str_ends_with($key, '_view_mode');
+        }, ARRAY_FILTER_USE_BOTH),
         'items' => $nodes,
+        'view_modes' => $view_modes,
       ];
     }
     elseif ($source === 'views') {

@@ -70,6 +70,9 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     $wrapper_attributes = [
       'class' => ['splide'],
     ];
+    if (!empty($content['aria_label'])) {
+      $wrapper_attributes['aria-label'] = $content['aria_label'];
+    }
     if (!empty($selector['id'])) {
       $wrapper_attributes['id'] = $selector['id'];
     }
@@ -98,21 +101,25 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
       if ($node_ids) {
         $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($node_ids);
         $view_builder = $this->entityTypeManager->getViewBuilder('node');
-        $list_items = [];
-        foreach ($items as $item) {
+
+        $build['track']['list'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'ul',
+          '#attributes' => ['class' => ['splide__list']],
+        ];
+
+        foreach ($items as $delta => $item) {
           $nid = isset($item['id']) ? (int) $item['id'] : 0;
           if (!$nid || empty($nodes[$nid])) {
             continue;
           }
-          $list_items[] = $view_builder->view($nodes[$nid], 'teaser');
+          $build['track']['list'][$delta] = [
+            '#type' => 'html_tag',
+            '#tag' => 'li',
+            '#attributes' => ['class' => ['splide__slide']],
+            'content' => $view_builder->view($nodes[$nid], 'teaser'),
+          ];
         }
-
-        $build['track']['list'] = [
-          '#theme' => 'item_list',
-          '#items' => $list_items,
-          '#attributes' => ['class' => ['splide__list']],
-          '#item_attributes' => ['class' => ['splide__slide']],
-        ];
       }
     }
     elseif ($source === 'views') {

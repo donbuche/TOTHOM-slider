@@ -14,6 +14,9 @@
     if (!window.Splide) {
       return;
     }
+    if (!element.querySelector('.splide__track') || !element.querySelector('.splide__list')) {
+      return;
+    }
 
     var options = (config && config.options) ? config.options : {};
     var splide = new window.Splide(element, options);
