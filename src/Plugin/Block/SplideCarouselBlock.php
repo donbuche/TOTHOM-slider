@@ -65,6 +65,8 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     $options = $carousel->get('options') ?? [];
     $content = $options['content'] ?? [];
     $source = $content['source'] ?? '';
+    $prefix = $content['prefix'] ?? [];
+    $suffix = $content['suffix'] ?? [];
 
     $selector = $this->getCarouselSelector($carousel_id, $content);
     $wrapper_attributes = [
@@ -83,10 +85,12 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     $build = [
       '#type' => 'container',
       '#attributes' => $wrapper_attributes,
+      'prefix' => $this->buildFormattedText($prefix, 'splide-carousel__prefix'),
       'track' => [
         '#type' => 'container',
         '#attributes' => ['class' => ['splide__track']],
       ],
+      'suffix' => $this->buildFormattedText($suffix, 'splide-carousel__suffix'),
     ];
     $build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id] = [
       'selector' => $selector['raw'],
@@ -180,6 +184,26 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     $cache->applyTo($build);
 
     return $build;
+  }
+
+  /**
+   * Builds a render array for formatted text.
+   */
+  protected function buildFormattedText(array $data, string $css_class): array {
+    $value = $data['value'] ?? '';
+    $format = $data['format'] ?? NULL;
+    if (!is_string($value) || trim($value) === '') {
+      return [];
+    }
+
+    return [
+      '#type' => 'processed_text',
+      '#text' => $value,
+      '#format' => $format,
+      '#wrapper_attributes' => [
+        'class' => [$css_class],
+      ],
+    ];
   }
 
   /**

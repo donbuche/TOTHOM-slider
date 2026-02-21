@@ -55,8 +55,20 @@ class SplideCarouselForm extends EntityForm {
     $form['content'] = [
       '#type' => 'details',
       '#title' => $this->t('Carousel content'),
-      '#open' => TRUE,
+      '#open' => FALSE,
       '#tree' => TRUE,
+    ];
+
+    $form['content']['prefix'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Prefix content'),
+      '#open' => FALSE,
+    ];
+    $form['content']['prefix']['prefix_content'] = [
+      '#type' => 'text_format',
+      '#title' => $this->t('Prefix content'),
+      '#format' => $options['content']['prefix']['format'] ?? NULL,
+      '#default_value' => $options['content']['prefix']['value'] ?? '',
     ];
 
     $form['content']['aria_label'] = [
@@ -130,7 +142,7 @@ class SplideCarouselForm extends EntityForm {
     $form['content']['node'] = [
       '#type' => 'details',
       '#title' => $this->t('Content provided by nodes'),
-      '#open' => TRUE,
+      '#open' => FALSE,
       '#states' => [
         'visible' => [
           ':input[name="content[source]"]' => ['value' => 'node'],
@@ -267,7 +279,7 @@ class SplideCarouselForm extends EntityForm {
     $form['content']['views'] = [
       '#type' => 'details',
       '#title' => $this->t('Content provided by Views'),
-      '#open' => TRUE,
+      '#open' => FALSE,
       '#states' => [
         'visible' => [
           ':input[name="content[source]"]' => ['value' => 'views'],
@@ -307,17 +319,29 @@ class SplideCarouselForm extends EntityForm {
         . '<p>3. ' . $this->t('Refresh this page and select it from the dropdown above.') . '</p>',
     ];
 
+    $form['content']['suffix'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Suffix content'),
+      '#open' => FALSE,
+    ];
+    $form['content']['suffix']['suffix_content'] = [
+      '#type' => 'text_format',
+      '#title' => $this->t('Suffix content'),
+      '#format' => $options['content']['suffix']['format'] ?? NULL,
+      '#default_value' => $options['content']['suffix']['value'] ?? '',
+    ];
+
     $form['options'] = [
       '#type' => 'details',
       '#title' => $this->t('Splide options'),
-      '#open' => TRUE,
+      '#open' => FALSE,
       '#tree' => TRUE,
     ];
 
     $form['options']['general'] = [
       '#type' => 'details',
       '#title' => $this->t('General'),
-      '#open' => TRUE,
+      '#open' => FALSE,
     ];
     $form['options']['general']['type'] = [
       '#type' => 'select',
@@ -1011,10 +1035,20 @@ class SplideCarouselForm extends EntityForm {
 
     // Keep only the relevant content keys.
     $source = $content_raw['source'] ?? '';
+    $prefix_raw = $content_raw['prefix']['prefix_content'] ?? [];
+    $suffix_raw = $content_raw['suffix']['suffix_content'] ?? [];
     $content = [
       'aria_label' => $content_raw['aria_label'] ?? '',
       'semantics' => $content_raw['semantics'] ?? '',
       'source' => $source,
+      'prefix' => [
+        'value' => $prefix_raw['value'] ?? '',
+        'format' => $prefix_raw['format'] ?? NULL,
+      ],
+      'suffix' => [
+        'value' => $suffix_raw['value'] ?? '',
+        'format' => $suffix_raw['format'] ?? NULL,
+      ],
       'node' => [],
       'views' => [],
     ];
