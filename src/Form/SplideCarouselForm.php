@@ -951,7 +951,7 @@ class SplideCarouselForm extends EntityForm {
    */
   protected function optionHelp($text, string $anchor): string {
     $url = 'https://splidejs.com/guides/options/#' . $anchor;
-    return (string) $this->t('@text <a href=":url" target="_blank" rel="noopener noreferrer">Docs</a>.', [
+    return (string) $this->t('@text<br><a href=":url" target="_blank" rel="noopener noreferrer">Read docs</a> for further information.', [
       '@text' => $text,
       ':url' => $url,
     ]);
