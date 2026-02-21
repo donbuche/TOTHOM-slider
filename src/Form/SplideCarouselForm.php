@@ -859,18 +859,40 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Classes'),
       '#open' => FALSE,
+      '#description' => $this->optionHelp($this->t('Add classes to append to Splide defaults. Default classes are always included. You can enter multiple classes separated by spaces.'), 'classes'),
     ];
     $form['options']['classes']['items'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Classes (key: value per line)'),
-      '#description' => $this->optionHelp($this->t('Custom class names for Splide elements.'), 'classes'),
-      '#default_value' => $options['classes']['items'] ?? '',
+      '#type' => 'table',
+      '#title' => $this->t('Custom classes'),
+      '#header' => [
+        $this->t('Key'),
+        $this->t('Custom classes'),
+        $this->t('Default classes'),
+      ],
     ];
+    $classes_defaults = $this->getSplideClassesDefaults();
+    $classes_custom = $options['classes']['items'] ?? [];
+    foreach ($classes_defaults as $key => $default) {
+      $form['options']['classes']['items'][$key]['key'] = [
+        '#type' => 'item',
+        '#markup' => '<code>' . $key . '</code>',
+      ];
+      $form['options']['classes']['items'][$key]['custom'] = [
+        '#type' => 'textfield',
+        '#default_value' => $classes_custom[$key] ?? '',
+        '#placeholder' => $this->t('e.g. my-custom-class'),
+      ];
+      $form['options']['classes']['items'][$key]['default'] = [
+        '#type' => 'item',
+        '#markup' => '<code>' . $default . '</code>',
+      ];
+    }
 
     $form['options']['i18n'] = [
       '#type' => 'details',
       '#title' => $this->t('i18n'),
       '#open' => FALSE,
+      '#description' => $this->optionHelp($this->t('Override Splide’s default interface strings (defaults are in English). Leave blank to keep the defaults.'), 'i18n'),
     ];
     $form['options']['i18n']['items'] = [
       '#type' => 'table',
@@ -1034,6 +1056,20 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * Returns Splide default classes for configurable elements.
+   */
+  protected function getSplideClassesDefaults(): array {
+    return [
+      'arrows' => 'splide__arrows',
+      'arrow' => 'splide__arrow',
+      'prev' => 'splide__arrow--prev',
+      'next' => 'splide__arrow--next',
+      'pagination' => 'splide__pagination',
+      'page' => 'splide__pagination__page',
+    ];
+  }
+
+  /**
    * Builds a list of available view displays.
    */
   protected function getViewDisplayOptions(): array {
@@ -1095,6 +1131,20 @@ class SplideCarouselForm extends EntityForm {
         $i18n[$key] = $row['text'];
       }
       $options['i18n']['items'] = $i18n;
+    }
+
+    if (!empty($options['classes']['items']) && is_array($options['classes']['items'])) {
+      $classes = [];
+      foreach ($options['classes']['items'] as $key => $row) {
+        if (!is_array($row)) {
+          continue;
+        }
+        $custom = trim((string) ($row['custom'] ?? ''));
+        if ($custom !== '') {
+          $classes[$key] = $custom;
+        }
+      }
+      $options['classes']['items'] = $classes;
     }
 
     // Normalize node items with weights into an ordered list.

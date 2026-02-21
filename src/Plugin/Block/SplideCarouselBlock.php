@@ -277,6 +277,13 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
         if ($normalized === NULL) {
           continue;
         }
+        if ($group === 'classes' && $key === 'items') {
+          $classes = $this->buildSplideClasses($normalized);
+          if (!empty($classes)) {
+            $splide_options['classes'] = $classes;
+          }
+          continue;
+        }
         if ($group === 'i18n' && $key === 'items') {
           $splide_options['i18n'] = $normalized;
           continue;
@@ -298,6 +305,35 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     }
 
     return $splide_options;
+  }
+
+  /**
+   * Builds the classes option by appending custom classes to defaults.
+   */
+  protected function buildSplideClasses($custom): array {
+    if (!is_array($custom)) {
+      return [];
+    }
+
+    $defaults = [
+      'arrows' => 'splide__arrows',
+      'arrow' => 'splide__arrow',
+      'prev' => 'splide__arrow--prev',
+      'next' => 'splide__arrow--next',
+      'pagination' => 'splide__pagination',
+      'page' => 'splide__pagination__page',
+    ];
+
+    $classes = [];
+    foreach ($defaults as $key => $default) {
+      $extra = trim((string) ($custom[$key] ?? ''));
+      if ($extra === '') {
+        continue;
+      }
+      $classes[$key] = trim($default . ' ' . $extra);
+    }
+
+    return $classes;
   }
 
   /**
