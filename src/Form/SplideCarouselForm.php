@@ -779,10 +779,31 @@ class SplideCarouselForm extends EntityForm {
       '#open' => FALSE,
     ];
     $form['options']['i18n']['items'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('i18n (key: value per line)'),
-      '#default_value' => $options['i18n']['items'] ?? '',
+      '#type' => 'table',
+      '#title' => $this->t('i18n strings'),
+      '#header' => [
+        $this->t('Key'),
+        $this->t('Text'),
+        $this->t('Used for'),
+      ],
     ];
+    $i18n_defaults = $options['i18n']['items'] ?? [];
+    $i18n_help = $this->getSplideI18nHelp();
+    foreach ($i18n_help as $key => $meta) {
+      $form['options']['i18n']['items'][$key]['key'] = [
+        '#type' => 'item',
+        '#markup' => '<code>' . $key . '</code>',
+      ];
+      $form['options']['i18n']['items'][$key]['text'] = [
+        '#type' => 'textfield',
+        '#default_value' => $i18n_defaults[$key] ?? '',
+        '#placeholder' => $meta['default'] ?? '',
+      ];
+      $form['options']['i18n']['items'][$key]['usage'] = [
+        '#type' => 'item',
+        '#markup' => $meta['usage'] ?? '',
+      ];
+    }
 
     $form = parent::form($form, $form_state);
     $form['cache_notice'] = [
@@ -851,6 +872,62 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * Returns Splide i18n keys with default text and usage notes.
+   */
+  protected function getSplideI18nHelp(): array {
+    return [
+      'prev' => [
+        'default' => $this->t('Previous slide'),
+        'usage' => $this->t('aria-label of the previous arrow'),
+      ],
+      'next' => [
+        'default' => $this->t('Next slide'),
+        'usage' => $this->t('aria-label of the next arrow'),
+      ],
+      'first' => [
+        'default' => $this->t('Go to first slide'),
+        'usage' => $this->t('aria-label of a navigation item'),
+      ],
+      'last' => [
+        'default' => $this->t('Go to last slide'),
+        'usage' => $this->t('aria-label of a navigation item'),
+      ],
+      'slideX' => [
+        'default' => $this->t('Go to slide %s'),
+        'usage' => $this->t('aria-label of pagination or each navigation item'),
+      ],
+      'pageX' => [
+        'default' => $this->t('Go to page %s'),
+        'usage' => $this->t('aria-label of pagination'),
+      ],
+      'play' => [
+        'default' => $this->t('Start autoplay'),
+        'usage' => $this->t('aria-label of the autoplay toggle button'),
+      ],
+      'pause' => [
+        'default' => $this->t('Pause autoplay'),
+        'usage' => $this->t('aria-label of the autoplay toggle button'),
+      ],
+      'carousel' => [
+        'default' => $this->t('carousel'),
+        'usage' => $this->t('aria-roledescription of the root element'),
+      ],
+      'select' => [
+        'default' => $this->t('Select a slide to show'),
+        'usage' => $this->t('aria-label of pagination'),
+      ],
+      'slide' => [
+        'default' => $this->t('slide'),
+        'usage' => $this->t('aria-roledescription of each slide'),
+      ],
+      'slideLabel' => [
+        'default' => $this->t('%s of %s'),
+        'usage' => $this->t('aria-label of each slide as {slide number} of {slide length}'),
+      ],
+    ];
+  }
+
+  /**
    * Builds a list of available view displays.
    */
   protected function getViewDisplayOptions(): array {
@@ -902,6 +979,17 @@ class SplideCarouselForm extends EntityForm {
     $options = $form_state->getValue('options') ?? [];
     $content = $form_state->getValue('content') ?? [];
     $content_raw = $content;
+
+    if (!empty($options['i18n']['items']) && is_array($options['i18n']['items'])) {
+      $i18n = [];
+      foreach ($options['i18n']['items'] as $key => $row) {
+        if (!is_array($row) || empty($row['text'])) {
+          continue;
+        }
+        $i18n[$key] = $row['text'];
+      }
+      $options['i18n']['items'] = $i18n;
+    }
 
     // Normalize node items with weights into an ordered list.
     $node_rows = $content_raw['node']['items_wrapper']['items'] ?? [];

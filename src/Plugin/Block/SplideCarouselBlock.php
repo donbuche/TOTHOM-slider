@@ -253,6 +253,10 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
         if ($normalized === NULL) {
           continue;
         }
+        if ($group === 'i18n' && $key === 'items') {
+          $splide_options['i18n'] = $normalized;
+          continue;
+        }
         $splide_options[$key] = $normalized;
       }
       unset($options[$group]);
