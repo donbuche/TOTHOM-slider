@@ -226,7 +226,7 @@ class SplideCarouselForm extends EntityForm {
     }
     $form['content']['views']['view_display'] = [
       '#type' => 'select',
-      '#title' => $this->t('View display'),
+      '#title' => $this->t('View [display]'),
       '#options' => $this->getViewDisplayOptions(),
       '#default_value' => $default_view,
       '#description' => $this->t('Select the view and display to use for this carousel.'),
@@ -778,7 +778,7 @@ class SplideCarouselForm extends EntityForm {
           continue;
         }
         $display_label = $display['display_title'] ?? $display_id;
-        $options[$view_id . ':' . $display_id] = $label . ' — ' . $display_label;
+        $options[$view_id . ':' . $display_id] = $label . ' — ' . '[' . $display_id . ']';
       }
     }
     return $options;
