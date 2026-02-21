@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\views\Views;
 
 /**
  * Form controller for Splide carousel add/edit forms.
@@ -219,20 +220,37 @@ class SplideCarouselForm extends EntityForm {
         ],
       ],
     ];
-    $form['content']['views']['view_machine_name'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('View machine name'),
-      '#default_value' => $options['content']['views']['view_machine_name'] ?? '',
+    $default_view = '';
+    if (!empty($options['content']['views']['view_machine_name']) && !empty($options['content']['views']['view_display_name'])) {
+      $default_view = $options['content']['views']['view_machine_name'] . ':' . $options['content']['views']['view_display_name'];
+    }
+    $form['content']['views']['view_display'] = [
+      '#type' => 'select',
+      '#title' => $this->t('View display'),
+      '#options' => $this->getViewDisplayOptions(),
+      '#default_value' => $default_view,
+      '#description' => $this->t('Select the view and display to use for this carousel.'),
+      '#empty_option' => $this->t('- Select a view display -'),
     ];
-    $form['content']['views']['view_display_name'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('View display name'),
-      '#default_value' => $options['content']['views']['view_display_name'] ?? '',
-    ];
-    $form['content']['views']['carousel_selector'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('CSS selector for the carousel'),
-      '#default_value' => $options['content']['views']['carousel_selector'] ?? '',
+    $form['content']['views']['view_help'] = [
+      '#type' => 'details',
+      '#title' => $this->t('How to create a view'),
+      '#open' => FALSE,
+      '#markup' => ''
+        . '<p>1. Go to Structure → Views and click on "<a target="_blank" href="/admin/structure/views/add">Add view</a>".</p>'
+        . '<ul>'
+        . '<li>' . $this->t('Choose the content type you want to show in the carousel.') . '</li>'
+        . '<li>' . $this->t('Add a Block display.') . '</li>'
+        . '<li>' . $this->t('Do not use pagination.') . '</li>'
+        . '</ul>'
+        . '<p>2. ' . $this->t('Once in the View configuration page:') . '</p>'
+        . '<ul>'
+        . '<li>' . $this->t('Under “Display format”, pick “Unformatted list” (any format will work, but “Unformatted list” works best).') . '</li>'
+        . '<li>' . $this->t('Set “Show” to “Fields” (do not use “Content”).') . '</li>'
+        . '<li>' . $this->t('Add the fields you want to appear in each slide (e.g. title, image, body).') . '</li>'
+        . '<li>' . $this->t('Save the view.') . '</li>'
+        . '</ul>'
+        . '<p>3. ' . $this->t('Refresh this page and select it from the dropdown above.') . '</p>',
     ];
 
     $form['options'] = [
@@ -744,6 +762,29 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * Builds a list of available view displays.
+   */
+  protected function getViewDisplayOptions(): array {
+    $options = [];
+    $views = Views::getAllViews();
+    foreach ($views as $view_id => $view) {
+      $label = $view->label() ?: $view_id;
+      $displays = $view->get('display');
+      foreach ($displays as $display_id => $display) {
+        if (empty($display['display_plugin'])) {
+          continue;
+        }
+        if ($display['display_plugin'] !== 'block') {
+          continue;
+        }
+        $display_label = $display['display_title'] ?? $display_id;
+        $options[$view_id . ':' . $display_id] = $label . ' — ' . $display_label;
+      }
+    }
+    return $options;
+  }
+
+  /**
    * Load nodes for default values.
    */
   protected function loadNodesFromIds(array $ids): array {
@@ -807,10 +848,15 @@ class SplideCarouselForm extends EntityForm {
       ];
     }
     elseif ($source === 'views') {
+      $selected_display = $content_raw['views']['view_display'] ?? '';
+      $view_machine = '';
+      $view_display = '';
+      if (is_string($selected_display) && strpos($selected_display, ':') !== FALSE) {
+        [$view_machine, $view_display] = explode(':', $selected_display, 2);
+      }
       $content['views'] = [
-        'view_machine_name' => $content_raw['views']['view_machine_name'] ?? '',
-        'view_display_name' => $content_raw['views']['view_display_name'] ?? '',
-        'carousel_selector' => $content_raw['views']['carousel_selector'] ?? '',
+        'view_machine_name' => $view_machine,
+        'view_display_name' => $view_display,
       ];
     }
 
