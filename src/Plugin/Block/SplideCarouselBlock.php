@@ -394,14 +394,42 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     if (is_string($raw)) {
       $decoded = json_decode($raw, TRUE);
       if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-        return $decoded;
+        return $this->normalizeBreakpoints($decoded);
       }
       return [];
     }
     if (is_array($raw)) {
-      return $raw;
+      return $this->normalizeBreakpoints($raw);
     }
     return [];
+  }
+
+  /**
+   * Normalizes breakpoint option values.
+   */
+  protected function normalizeBreakpoints(array $breakpoints): array {
+    $normalized = [];
+    foreach ($breakpoints as $breakpoint => $options) {
+      if (!is_array($options)) {
+        continue;
+      }
+      $normalized_options = [];
+      foreach ($options as $key => $value) {
+        if (is_array($value)) {
+          $normalized_options[$key] = $value;
+          continue;
+        }
+        $normalized_value = $this->normalizeSplideValue($value);
+        if ($normalized_value === NULL) {
+          continue;
+        }
+        $normalized_options[$key] = $normalized_value;
+      }
+      if (!empty($normalized_options)) {
+        $normalized[$breakpoint] = $normalized_options;
+      }
+    }
+    return $normalized;
   }
 
   /**
