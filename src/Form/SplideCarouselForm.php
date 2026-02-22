@@ -78,7 +78,7 @@ class SplideCarouselForm extends EntityForm {
 
     $form['content']['aria_group'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('ARIA label'),
+      '#title' => $this->t('Carousel accessibility'),
     ];
     $form['content']['aria_group']['aria_label'] = [
       '#type' => 'textfield',
