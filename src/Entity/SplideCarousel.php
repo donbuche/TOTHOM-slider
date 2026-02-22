@@ -45,10 +45,10 @@ use Drupal\drupal_splide\SplideCarouselInterface;
  *   },
  *   translatable = TRUE,
  *   links = {
- *     "collection" = "/admin/config/content/splide",
- *     "add-form" = "/admin/config/content/splide/add",
- *     "edit-form" = "/admin/config/content/splide/{splide_carousel}",
- *     "delete-form" = "/admin/config/content/splide/{splide_carousel}/delete"
+ *     "collection" = "/admin/content/carousels",
+ *     "add-form" = "/admin/content/carousels/add",
+ *     "edit-form" = "/admin/content/carousels/{splide_carousel}",
+ *     "delete-form" = "/admin/content/carousels/{splide_carousel}/delete"
  *   }
  * )
  */

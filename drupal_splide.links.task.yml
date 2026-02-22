@@ -1,0 +1,5 @@
+drupal_splide.carousels_tab:
+  route_name: entity.splide_carousel.collection
+  title: 'Carousels'
+  base_route: system.admin_content
+  weight: 30

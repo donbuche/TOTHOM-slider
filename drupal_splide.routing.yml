@@ -1,5 +1,5 @@
 entity.splide_carousel.collection:
-  path: '/admin/config/content/splide'
+  path: '/admin/content/carousels'
   defaults:
     _entity_list: 'splide_carousel'
     _title: 'Splide carousels'
@@ -7,7 +7,7 @@ entity.splide_carousel.collection:
     _permission: 'administer splide carousels'
 
 entity.splide_carousel.add_form:
-  path: '/admin/config/content/splide/add'
+  path: '/admin/content/carousels/add'
   defaults:
     _entity_form: 'splide_carousel.add'
     _title: 'Add carousel'
@@ -15,7 +15,7 @@ entity.splide_carousel.add_form:
     _permission: 'administer splide carousels'
 
 entity.splide_carousel.edit_form:
-  path: '/admin/config/content/splide/{splide_carousel}'
+  path: '/admin/content/carousels/{splide_carousel}'
   defaults:
     _entity_form: 'splide_carousel.edit'
     _title: 'Edit carousel'
@@ -23,7 +23,7 @@ entity.splide_carousel.edit_form:
     _permission: 'administer splide carousels'
 
 entity.splide_carousel.delete_form:
-  path: '/admin/config/content/splide/{splide_carousel}/delete'
+  path: '/admin/content/carousels/{splide_carousel}/delete'
   defaults:
     _entity_form: 'splide_carousel.delete'
     _title: 'Delete carousel'
