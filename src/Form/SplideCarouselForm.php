@@ -76,16 +76,25 @@ class SplideCarouselForm extends EntityForm {
       '#description' => $this->t('Optional formatted text displayed before the carousel.'),
     ];
 
-    $form['content']['aria_label'] = [
+    $form['content']['aria_group'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('ARIA label'),
+    ];
+    $form['content']['aria_group']['aria_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('ARIA label'),
       '#default_value' => $options['content']['aria_label'] ?? '',
       '#description' => $this->t('Accessible label for the carousel container.'),
+      '#parents' => ['content', 'aria_label'],
     ];
 
-    $form['content']['semantics'] = [
-      '#type' => 'radios',
+    $form['content']['semantics_group'] = [
+      '#type' => 'fieldset',
       '#title' => $this->t('Carousel semantics'),
+    ];
+    $form['content']['semantics_group']['semantics'] = [
+      '#type' => 'radios',
+      '#parents' => ['content', 'semantics'],
       '#description' => $this->t('Use “Content carousel” when the slides are part of the main content (e.g. products, cards, gallery). Use “Decorative carousel” when the slides are purely ornamental; it will be rendered with decorative semantics.'),
       '#options' => [
         'content' => $this->t('Content carousel'),
@@ -94,7 +103,7 @@ class SplideCarouselForm extends EntityForm {
       '#default_value' => $options['content']['semantics'] ?? 'content',
     ];
 
-    $form['content']['semantics_markup_content'] = [
+    $form['content']['semantics_group']['semantics_markup_content'] = [
       '#type' => 'details',
       '#title' => $this->t('Show HTML example'),
       '#open' => FALSE,
@@ -114,7 +123,7 @@ class SplideCarouselForm extends EntityForm {
       ],
     ];
 
-    $form['content']['semantics_markup_decorative'] = [
+    $form['content']['semantics_group']['semantics_markup_decorative'] = [
       '#type' => 'details',
       '#title' => $this->t('Show HTML example'),
       '#open' => FALSE,
@@ -134,9 +143,13 @@ class SplideCarouselForm extends EntityForm {
       ],
     ];
 
-    $form['content']['source'] = [
-      '#type' => 'radios',
+    $form['content']['source_group'] = [
+      '#type' => 'fieldset',
       '#title' => $this->t('Content source'),
+    ];
+    $form['content']['source_group']['source'] = [
+      '#type' => 'radios',
+      '#parents' => ['content', 'source'],
       '#description' => $this->t('Select where slides are loaded from.'),
       '#options' => [
         'node' => $this->t('Content provided by nodes'),
@@ -145,11 +158,12 @@ class SplideCarouselForm extends EntityForm {
       '#default_value' => $options['content']['source'] ?? '',
     ];
 
-    $form['content']['node'] = [
+    $form['content']['source_group']['node'] = [
       '#type' => 'details',
       '#title' => $this->t('Content provided by nodes'),
       '#open' => FALSE,
       '#description' => $this->t('Pick specific nodes to render as slides.'),
+      '#parents' => ['content', 'node'],
       '#states' => [
         'visible' => [
           ':input[name="content[source]"]' => ['value' => 'node'],
@@ -167,7 +181,7 @@ class SplideCarouselForm extends EntityForm {
     }, ARRAY_FILTER_USE_BOTH);
     $allowed_bundles_list = array_keys($allowed_bundles);
 
-    $form['content']['node']['allowed_bundles'] = [
+    $form['content']['source_group']['node']['allowed_bundles'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Allowed content types'),
       '#attributes' => ['class' => ['splide-allowed-bundles']],
@@ -175,7 +189,7 @@ class SplideCarouselForm extends EntityForm {
       '#tree' => TRUE,
     ];
 
-    $form['content']['node']['items_wrapper'] = [
+    $form['content']['source_group']['node']['items_wrapper'] = [
       '#type' => 'container',
       '#attributes' => ['id' => 'splide-node-autocomplete-wrapper'],
     ];
@@ -194,7 +208,7 @@ class SplideCarouselForm extends EntityForm {
       $form_state->set('node_items_count', $items_count);
     }
 
-    $form['content']['node']['items_wrapper']['items'] = [
+    $form['content']['source_group']['node']['items_wrapper']['items'] = [
       '#type' => 'table',
       '#title' => $this->t('Selected nodes'),
       '#description' => $this->t('Choose and order the nodes that will appear as slides.'),
@@ -213,9 +227,9 @@ class SplideCarouselForm extends EntityForm {
     ];
 
     for ($i = 0; $i < $items_count; $i++) {
-      $form['content']['node']['items_wrapper']['items'][$i]['#attributes']['class'][] = 'draggable';
+      $form['content']['source_group']['node']['items_wrapper']['items'][$i]['#attributes']['class'][] = 'draggable';
 
-      $form['content']['node']['items_wrapper']['items'][$i]['node'] = [
+      $form['content']['source_group']['node']['items_wrapper']['items'][$i]['node'] = [
         '#type' => 'entity_autocomplete',
         '#title' => $this->t('Node title'),
         '#title_display' => 'invisible',
@@ -227,7 +241,7 @@ class SplideCarouselForm extends EntityForm {
         '#description' => $this->t('Start typing to search nodes.'),
       ];
 
-      $form['content']['node']['items_wrapper']['items'][$i]['weight'] = [
+      $form['content']['source_group']['node']['items_wrapper']['items'][$i]['weight'] = [
         '#type' => 'weight',
         '#title' => $this->t('Weight'),
         '#title_display' => 'invisible',
@@ -235,7 +249,7 @@ class SplideCarouselForm extends EntityForm {
         '#default_value' => $i,
         '#attributes' => ['class' => ['splide-node-weight']],
       ];
-      $form['content']['node']['items_wrapper']['items'][$i]['remove'] = [
+      $form['content']['source_group']['node']['items_wrapper']['items'][$i]['remove'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remove'),
         '#name' => 'remove_node_' . $i,
@@ -249,7 +263,7 @@ class SplideCarouselForm extends EntityForm {
       ];
     }
 
-    $form['content']['node']['items_wrapper']['add_more'] = [
+    $form['content']['source_group']['node']['items_wrapper']['add_more'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add another node'),
       '#description' => $this->t('Append a new node selector row.'),
@@ -264,7 +278,7 @@ class SplideCarouselForm extends EntityForm {
     $view_mode_options = $this->getNodeViewModeOptions();
     $saved_view_modes = $options['content']['node']['view_modes'] ?? [];
     foreach ($this->getContentTypeOptions() as $bundle_id => $bundle_label) {
-      $form['content']['node']['allowed_bundles'][$bundle_id] = [
+      $form['content']['source_group']['node']['allowed_bundles'][$bundle_id] = [
         '#type' => 'checkbox',
         '#title' => $bundle_label,
         '#default_value' => !empty($allowed_bundles_default[$bundle_id]) ? 1 : 0,
@@ -273,10 +287,12 @@ class SplideCarouselForm extends EntityForm {
           'wrapper' => 'splide-node-autocomplete-wrapper',
         ],
       ];
-      $form['content']['node']['allowed_bundles'][$bundle_id . '_view_mode'] = [
+      $form['content']['source_group']['node']['allowed_bundles'][$bundle_id . '_view_mode'] = [
         '#type' => 'select',
         '#title' => $this->t('@type view mode', ['@type' => $bundle_label]),
-        '#description' => $this->t('Optional view mode override for this content type.'),
+        '#description' => $this->t('Optional view mode override for this content type.<br><a href=":url" target="_blank" rel="noopener noreferrer">Create a view mode</a>.', [
+          ':url' => '/admin/structure/display-modes/view/add',
+        ]),
         '#options' => $view_mode_options,
         '#default_value' => $saved_view_modes[$bundle_id] ?? '',
         '#empty_option' => $this->t('- Use default -'),
@@ -288,11 +304,12 @@ class SplideCarouselForm extends EntityForm {
       ];
     }
 
-    $form['content']['views'] = [
+    $form['content']['source_group']['views'] = [
       '#type' => 'details',
       '#title' => $this->t('Content provided by Views'),
       '#open' => FALSE,
       '#description' => $this->t('Render slides from a Views block display.'),
+      '#parents' => ['content', 'views'],
       '#states' => [
         'visible' => [
           ':input[name="content[source]"]' => ['value' => 'views'],
@@ -303,7 +320,7 @@ class SplideCarouselForm extends EntityForm {
     if (!empty($options['content']['views']['view_machine_name']) && !empty($options['content']['views']['view_display_name'])) {
       $default_view = $options['content']['views']['view_machine_name'] . ':' . $options['content']['views']['view_display_name'];
     }
-    $form['content']['views']['view_display'] = [
+    $form['content']['source_group']['views']['view_display'] = [
       '#type' => 'select',
       '#title' => $this->t('View [display]'),
       '#options' => $this->getViewDisplayOptions(),
@@ -311,7 +328,7 @@ class SplideCarouselForm extends EntityForm {
       '#description' => $this->t('Select the view and display to use for this carousel.'),
       '#empty_option' => $this->t('- Select a view display -'),
     ];
-    $form['content']['views']['view_help'] = [
+    $form['content']['source_group']['views']['view_help'] = [
       '#type' => 'details',
       '#title' => $this->t('How to create a view'),
       '#open' => FALSE,
@@ -937,7 +954,7 @@ class SplideCarouselForm extends EntityForm {
    * AJAX callback to refresh node autocomplete.
    */
   public function updateNodeAutocomplete(array &$form, FormStateInterface $form_state): array {
-    return $form['content']['node']['items_wrapper'];
+    return $form['content']['source_group']['node']['items_wrapper'];
   }
 
   /**
