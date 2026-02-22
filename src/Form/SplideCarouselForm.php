@@ -835,6 +835,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Reduced motion'),
       '#open' => FALSE,
+      '#description' => $this->t('These options apply only when the operating system has “Reduce motion” enabled.'),
     ];
     $form['options']['reducedMotion']['speed'] = [
       '#type' => 'number',
