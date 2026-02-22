@@ -99,6 +99,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
 
     if ($source === 'node') {
       $items = $content['node']['items'] ?? [];
+      $view_modes = $content['node']['view_modes'] ?? [];
       $node_ids = array_values(array_filter(array_map(static function (array $item): ?int {
         return isset($item['id']) ? (int) $item['id'] : NULL;
       }, $items)));
@@ -117,11 +118,14 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           if (!$nid || empty($nodes[$nid])) {
             continue;
           }
+          $node = $nodes[$nid];
+          $bundle = $node->bundle();
+          $view_mode = $view_modes[$bundle] ?? 'teaser';
           $build['track']['list'][$delta] = [
             '#type' => 'html_tag',
             '#tag' => 'li',
             '#attributes' => ['class' => ['splide__slide']],
-            'content' => $view_builder->view($nodes[$nid], 'teaser'),
+            'content' => $view_builder->view($node, $view_mode),
           ];
         }
       }
