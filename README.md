@@ -17,7 +17,7 @@ drush cr
 
 Go to:
 
-`/admin/config/content/splide`
+`/admin/content/carousels`
 
 From there you can add, edit, and delete carousels.
 
