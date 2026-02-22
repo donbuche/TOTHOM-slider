@@ -860,7 +860,7 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['breakpoints']['items'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Breakpoints JSON'),
-      '#description' => $this->optionHelp($this->t('JSON object of breakpoint => options.'), 'breakpoints'),
+      '#description' => $this->optionHelp($this->t('JSON map where each breakpoint (in px) is a key and its value is an options object. The Simple builder writes to this JSON. You can add extra options here, but they will not appear in the Simple builder.'), 'breakpoints'),
       '#default_value' => $breakpoints_json_default,
       '#states' => [
         'visible' => [
