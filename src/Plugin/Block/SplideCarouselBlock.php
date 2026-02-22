@@ -327,6 +327,13 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           $splide_options['i18n'] = $normalized;
           continue;
         }
+        if ($group === 'breakpoints' && $key === 'items') {
+          $breakpoints = $this->buildSplideBreakpoints($normalized);
+          if (!empty($breakpoints)) {
+            $splide_options['breakpoints'] = $breakpoints;
+          }
+          continue;
+        }
         if ($group === 'reducedMotion') {
           $splide_options['reducedMotion'] = $splide_options['reducedMotion'] ?? [];
           $splide_options['reducedMotion'][$key] = $normalized;
@@ -378,6 +385,23 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     }
 
     return $classes;
+  }
+
+  /**
+   * Builds breakpoints options from JSON or array.
+   */
+  protected function buildSplideBreakpoints($raw): array {
+    if (is_string($raw)) {
+      $decoded = json_decode($raw, TRUE);
+      if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return $decoded;
+      }
+      return [];
+    }
+    if (is_array($raw)) {
+      return $raw;
+    }
+    return [];
   }
 
   /**

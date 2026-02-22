@@ -790,16 +790,6 @@ class SplideCarouselForm extends EntityForm {
       '#default_value' => $behavior['direction'] ?? 'ltr',
       '#description' => $this->optionHelp($this->t('Slide direction.'), 'direction'),
     ];
-    $form['options']['behavior']['mediaQuery'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Media query'),
-      '#options' => [
-        'min' => $this->t('min'),
-        'max' => $this->t('max'),
-      ],
-      '#default_value' => $behavior['mediaQuery'] ?? 'max',
-      '#description' => $this->optionHelp($this->t('How breakpoints are interpreted.'), 'mediaquery'),
-    ];
     $form['options']['behavior']['updateOnMove'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Update on move'),
@@ -841,11 +831,150 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('Breakpoints'),
       '#open' => FALSE,
     ];
+    $form['options']['breakpoints']['mediaQuery'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Media query'),
+      '#options' => [
+        'min' => $this->t('min'),
+        'max' => $this->t('max'),
+      ],
+      '#default_value' => $behavior['mediaQuery'] ?? 'min',
+      '#description' => $this->optionHelp($this->t('How breakpoints are interpreted.'), 'mediaquery'),
+      '#parents' => ['options', 'behavior', 'mediaQuery'],
+    ];
+    $breakpoints_mode = $options['breakpoints']['mode'] ?? 'json';
+    $form['options']['breakpoints']['mode'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Editor mode'),
+      '#options' => [
+        'simple' => $this->t('Simple builder'),
+        'json' => $this->t('JSON'),
+      ],
+      '#default_value' => $breakpoints_mode,
+    ];
+
+    $breakpoints_json_default = $options['breakpoints']['items'] ?? '';
+    if ($breakpoints_json_default === '[]') {
+      $breakpoints_json_default = '';
+    }
     $form['options']['breakpoints']['items'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Breakpoints JSON'),
       '#description' => $this->optionHelp($this->t('JSON object of breakpoint => options.'), 'breakpoints'),
-      '#default_value' => $options['breakpoints']['items'] ?? '',
+      '#default_value' => $breakpoints_json_default,
+      '#states' => [
+        'visible' => [
+          ':input[name="options[breakpoints][mode]"]' => ['value' => 'json'],
+        ],
+      ],
+    ];
+
+    $simple_defaults = $this->getBreakpointsSimpleDefaults($options['breakpoints']['items'] ?? []);
+    $user_input = $form_state->getUserInput();
+    $simple_input = $user_input['options']['breakpoints']['simple_wrapper']['items'] ?? NULL;
+    $simple_rows = is_array($simple_input) ? $simple_input : $simple_defaults;
+    $simple_count = $form_state->get('breakpoints_simple_count');
+    if ($simple_count === NULL) {
+      $simple_count = max(1, count($simple_defaults));
+      $form_state->set('breakpoints_simple_count', $simple_count);
+    }
+
+    $form['options']['breakpoints']['simple_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'splide-breakpoints-simple-wrapper'],
+      '#states' => [
+        'visible' => [
+          ':input[name="options[breakpoints][mode]"]' => ['value' => 'simple'],
+        ],
+      ],
+    ];
+    $form['options']['breakpoints']['simple_wrapper']['note'] = [
+      '#type' => 'item',
+      '#markup' => '<p class="description">' . $this->t('For advanced breakpoint options, switch to JSON mode or configure global options under Splide options.') . '</p>',
+    ];
+
+    $form['options']['breakpoints']['simple_wrapper']['items'] = [
+      '#type' => 'table',
+      '#title' => $this->t('Breakpoints'),
+      '#description' => $this->optionHelp($this->t('Define responsive overrides per breakpoint using common options.'), 'breakpoints'),
+      '#header' => [
+        $this->t('Breakpoint (px)'),
+        $this->t('Per page'),
+        $this->t('Per move'),
+        $this->t('Gap'),
+        $this->t('Show arrows?'),
+        $this->t('Show pagination?'),
+        $this->t('Operations'),
+      ],
+    ];
+
+    for ($i = 0; $i < $simple_count; $i++) {
+      $row = $simple_rows[$i] ?? [];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['breakpoint'] = [
+        '#type' => 'number',
+        '#min' => 0,
+        '#title' => $this->t('Breakpoint (px)'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['breakpoint'] ?? '',
+        '#placeholder' => $this->t('e.g. 768'),
+        '#attributes' => ['style' => 'width: 150px;'],
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['perPage'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Per page'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['perPage'] ?? '',
+        '#attributes' => ['style' => 'width: 150px;'],
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['perMove'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Per move'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['perMove'] ?? '',
+        '#attributes' => ['style' => 'width: 150px;'],
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['gap'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Gap'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['gap'] ?? '',
+        '#placeholder' => $this->t('e.g. 1rem'),
+        '#attributes' => ['style' => 'width: 150px;'],
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['arrows'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Arrows'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['arrows'] ?? 0,
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['pagination'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Pagination'),
+        '#title_display' => 'invisible',
+        '#default_value' => $row['pagination'] ?? 0,
+      ];
+      $form['options']['breakpoints']['simple_wrapper']['items'][$i]['remove'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove'),
+        '#name' => 'remove_breakpoint_simple_' . $i,
+        '#submit' => ['::removeBreakpointSimple'],
+        '#limit_validation_errors' => [],
+        '#ajax' => [
+          'callback' => '::updateBreakpointsSimple',
+          'wrapper' => 'splide-breakpoints-simple-wrapper',
+        ],
+      ];
+    }
+
+    $form['options']['breakpoints']['simple_wrapper']['add_more'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add breakpoint'),
+      '#submit' => ['::addBreakpointSimple'],
+      '#limit_validation_errors' => [],
+      '#ajax' => [
+        'callback' => '::updateBreakpointsSimple',
+        'wrapper' => 'splide-breakpoints-simple-wrapper',
+      ],
     ];
 
     $form['options']['reducedMotion'] = [
@@ -951,10 +1080,66 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    parent::validateForm($form, $form_state);
+
+    $mode = $form_state->getValue(['options', 'breakpoints', 'mode']) ?? 'json';
+    if ($mode !== 'json') {
+      return;
+    }
+    $json = $form_state->getValue(['options', 'breakpoints', 'items']) ?? '';
+    if (!is_string($json) || trim($json) === '') {
+      return;
+    }
+    json_decode($json, TRUE);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      $form_state->setErrorByName('options][breakpoints][items', $this->t('Breakpoints JSON must be valid JSON.'));
+    }
+  }
+
+  /**
    * AJAX callback to refresh node autocomplete.
    */
   public function updateNodeAutocomplete(array &$form, FormStateInterface $form_state): array {
     return $form['content']['source_group']['node']['items_wrapper'];
+  }
+
+  /**
+   * AJAX callback to refresh simple breakpoints table.
+   */
+  public function updateBreakpointsSimple(array &$form, FormStateInterface $form_state): array {
+    return $form['options']['breakpoints']['simple_wrapper'];
+  }
+
+  /**
+   * Add one more simple breakpoint row.
+   */
+  public function addBreakpointSimple(array &$form, FormStateInterface $form_state): void {
+    $count = $form_state->get('breakpoints_simple_count') ?? 1;
+    $form_state->set('breakpoints_simple_count', $count + 1);
+    $form_state->setRebuild();
+  }
+
+  /**
+   * Remove a simple breakpoint row from the table.
+   */
+  public function removeBreakpointSimple(array &$form, FormStateInterface $form_state): void {
+    $trigger = $form_state->getTriggeringElement();
+    $name = $trigger['#name'] ?? '';
+    if (preg_match('/remove_breakpoint_simple_(\d+)/', $name, $matches)) {
+      $index = (int) $matches[1];
+      $values = $form_state->getValue(['options', 'breakpoints', 'simple_wrapper', 'items']) ?? [];
+      if (isset($values[$index])) {
+        unset($values[$index]);
+        $values = array_values($values);
+        $form_state->setValue(['options', 'breakpoints', 'simple_wrapper', 'items'], $values);
+      }
+      $count = max(1, ($form_state->get('breakpoints_simple_count') ?? 1) - 1);
+      $form_state->set('breakpoints_simple_count', $count);
+    }
+    $form_state->setRebuild();
   }
 
   /**
@@ -974,11 +1159,11 @@ class SplideCarouselForm extends EntityForm {
     $name = $trigger['#name'] ?? '';
     if (preg_match('/remove_node_(\d+)/', $name, $matches)) {
       $index = (int) $matches[1];
-      $values = $form_state->getValue(['content', 'node', 'items_wrapper', 'items']) ?? [];
+      $values = $form_state->getValue(['content', 'source_group', 'node', 'items_wrapper', 'items']) ?? [];
       if (isset($values[$index])) {
         unset($values[$index]);
         $values = array_values($values);
-        $form_state->setValue(['content', 'node', 'items_wrapper', 'items'], $values);
+        $form_state->setValue(['content', 'source_group', 'node', 'items_wrapper', 'items'], $values);
       }
       $count = max(1, ($form_state->get('node_items_count') ?? 1) - 1);
       $form_state->set('node_items_count', $count);
@@ -1088,6 +1273,38 @@ class SplideCarouselForm extends EntityForm {
   }
 
   /**
+   * Normalizes saved breakpoints into a simple table-ready list.
+   */
+  protected function getBreakpointsSimpleDefaults($raw): array {
+    if (is_string($raw)) {
+      $decoded = json_decode($raw, TRUE);
+      if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $raw = $decoded;
+      }
+    }
+    if (!is_array($raw)) {
+      return [];
+    }
+
+    $rows = [];
+    foreach ($raw as $breakpoint => $options) {
+      if (!is_array($options)) {
+        continue;
+      }
+      $rows[] = [
+        'breakpoint' => is_numeric($breakpoint) ? (int) $breakpoint : $breakpoint,
+        'perPage' => $options['perPage'] ?? '',
+        'perMove' => $options['perMove'] ?? '',
+        'gap' => $options['gap'] ?? '',
+        'arrows' => $options['arrows'] ?? 0,
+        'pagination' => $options['pagination'] ?? 0,
+      ];
+    }
+
+    return $rows;
+  }
+
+  /**
    * Builds a list of available view displays.
    */
   protected function getViewDisplayOptions(): array {
@@ -1150,6 +1367,34 @@ class SplideCarouselForm extends EntityForm {
       }
       $options['i18n']['items'] = $i18n;
     }
+
+    $breakpoints_mode = $options['breakpoints']['mode'] ?? 'json';
+    if ($breakpoints_mode === 'simple' && !empty($options['breakpoints']['simple_wrapper']['items'])) {
+      $breakpoints = [];
+      foreach ($options['breakpoints']['simple_wrapper']['items'] as $row) {
+        $breakpoint = $row['breakpoint'] ?? '';
+        if ($breakpoint === '' || $breakpoint === NULL) {
+          continue;
+        }
+        $breakpoint_key = is_numeric($breakpoint) ? (string) (int) $breakpoint : (string) $breakpoint;
+        $bp_options = [];
+        foreach (['perPage', 'perMove', 'gap', 'arrows', 'pagination'] as $key) {
+          if (!array_key_exists($key, $row)) {
+            continue;
+          }
+          $value = $row[$key];
+          if ($value === '' || $value === NULL) {
+            continue;
+          }
+          $bp_options[$key] = $value;
+        }
+        if (!empty($bp_options)) {
+          $breakpoints[$breakpoint_key] = $bp_options;
+        }
+      }
+      $options['breakpoints']['items'] = json_encode($breakpoints, JSON_UNESCAPED_SLASHES);
+    }
+    unset($options['breakpoints']['simple_wrapper']);
 
     if (!empty($options['classes']['items']) && is_array($options['classes']['items'])) {
       $classes = [];
