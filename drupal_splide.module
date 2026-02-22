@@ -2,5 +2,70 @@
 
 /**
  * @file
- * Drupal Splide module.
+ * Module hooks for Drupal Splide.
  */
+
+/**
+ * Implements hook_help().
+ */
+function drupal_splide_help($route_name, $route_match) {
+  if ($route_name !== 'help.page.drupal_splide') {
+    return NULL;
+  }
+
+  $output = [];
+
+  $output[] = '<h2>' . t('Drupal Splide') . '</h2>';
+  $output[] = '<p>' . t('Drupal Splide provides configurable Splide.js carousels as reusable configuration entities. You create carousels in the admin UI, then place them as blocks (by using the base block called "Splide carousel (select)").') . '</p>';
+
+  $output[] = '<h3>' . t('1. Splide.js library files') . '</h3>';
+  $output[] = '<p>' . t('This module expects Splide.js assets to be placed in the Drupal libraries directory. Download Splide.js and ensure the files below exist:') . '</p>';
+  $output[] = '<ul>'
+    . '<li>' . t('CSS: /web/libraries/splidejs/splide/dist/css/splide.min.css') . '</li>'
+    . '<li>' . t('JS: /web/libraries/splidejs/splide/dist/js/splide.min.js') . '</li>'
+    . '</ul>';
+  $output[] = '<p>' . t('These paths must match the entries in drupal_splide.libraries.yml, otherwise the carousel will not load.') . '</p>';
+
+  $output[] = '<h3>' . t('2. Create a carousel') . '</h3>';
+  $output[] = '<p>' . t('Go to the Splide carousels page and create a new carousel. Each carousel stores its own content settings and Splide options. You can edit and reuse the same carousel in multiple places.') . '</p>';
+
+  $output[] = '<h3>' . t('3. Choose the content source') . '</h3>';
+  $output[] = '<p>' . t('Under "Carousel content", pick how slides are built:') . '</p>';
+  $output[] = '<ul>'
+    . '<li>' . t('<strong>Content provided by nodes</strong>: select one or more node types, optionally select a view mode per type, and choose the specific nodes to display.') . '</li>'
+    . '<li>' . t('<strong>Content provided by Views</strong>: choose a Views block display to render slides.') . '</li>'
+    . '</ul>';
+
+  $output[] = '<h3>' . t('4. Prefix and suffix content') . '</h3>';
+  $output[] = '<p>' . t('You can add formatted text that appears above (Prefix content) or below (Suffix content) the carousel. This is useful for headings, captions, or CTA blocks.') . '</p>';
+
+  $output[] = '<h3>' . t('5. Splide options') . '</h3>';
+  $output[] = '<p>' . t('All core Splide options are available in grouped accordions (General, Layout, Navigation, Autoplay, Drag & wheel, Accessibility, Behavior, etc.). Each option includes a link to the official Splide documentation for precise behavior and defaults.') . '</p>';
+
+  $output[] = '<h3>' . t('Breakpoints') . '</h3>';
+  $output[] = '<p>' . t('Breakpoints can be edited in two modes:') . '</p>';
+  $output[] = '<ul>'
+    . '<li>' . t('<strong>Simple builder</strong>: a friendly table for common breakpoint options (perPage, perMove, gap, arrows, pagination). When you save, the table is converted into JSON.') . '</li>'
+    . '<li>' . t('<strong>JSON</strong>: advanced mode where you can write the full breakpoint options object. This supports any Splide option per breakpoint. Options added here that are not supported by the simple builder will not be shown in the table, but they will still be saved and applied.') . '</li>'
+    . '</ul>';
+  $output[] = '<p>' . t('The "Media query" setting controls how breakpoints are interpreted. Use "min" for mobile-first behavior or "max" for desktop-first behavior.') . '</p>';
+
+  $output[] = '<h3>' . t('Classes') . '</h3>';
+  $output[] = '<p>' . t('The Classes table lets you append custom class names to Splide\'s defaults (the defaults are always included). This ensures core Splide styling continues to work while still allowing customization.') . '</p>';
+
+  $output[] = '<h3>' . t('i18n') . '</h3>';
+  $output[] = '<p>' . t('The i18n table lets you override interface strings used by Splide (defaults are in English). Leave fields empty to keep the defaults. Custom strings are passed to Splide\'s i18n option.') . '</p>';
+
+  $output[] = '<h3>' . t('Autoplay and toggle button') . '</h3>';
+  $output[] = '<p>' . t('If autoplay is enabled, the module renders a play/pause toggle button using Splide\'s recommended markup. The button labels use your i18n overrides if provided.') . '</p>';
+
+  $output[] = '<h3>' . t('Reduced motion') . '</h3>';
+  $output[] = '<p>' . t('Reduced motion options apply only when the user\'s operating system has "Reduce motion" enabled. They do not affect normal playback.') . '</p>';
+
+  $output[] = '<h3>' . t('Placing carousels as blocks') . '</h3>';
+  $output[] = '<p>' . t('Use the block “Splide carousel (select)” to place a carousel in Layout Builder. This block is a single, reusable block that contains a selector for choosing which carousel to render.') . '</p>';
+  $output[] = '<p>' . t('Because the selector is part of the block configuration, you do not need to create a new block definition for each carousel. This means new carousels appear immediately in the selector without clearing caches, and you can reuse the same block type across multiple layouts.') . '</p>';
+  $output[] = '<p>' . t('To use it: add the block, open its configuration, pick a carousel from the dropdown, and save. The block title is optional and can be hidden per placement.') . '</p>';
+
+  return implode("\n", $output);
+}

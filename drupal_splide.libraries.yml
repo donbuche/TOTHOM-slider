@@ -4,3 +4,7 @@ splide:
       /libraries/splidejs/splide/dist/css/splide.min.css: { minified: true }
   js:
     /libraries/splidejs/splide/dist/js/splide.min.js: { minified: true }
+    js/drupal-splide.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
