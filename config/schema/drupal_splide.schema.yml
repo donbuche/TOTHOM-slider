@@ -5,12 +5,127 @@ drupal_splide.splide_carousel.*:
     id:
       type: string
       label: 'ID'
+    langcode:
+      type: string
+      label: 'Language code'
     label:
       type: label
       label: 'Label'
+      translatable: true
     status:
       type: boolean
       label: 'Enabled'
     options:
       type: mapping
       label: 'Splide options'
+      mapping:
+        content:
+          type: mapping
+          label: 'Content'
+          mapping:
+            aria_label:
+              type: text
+              label: 'ARIA label'
+              translatable: true
+            prefix:
+              type: mapping
+              label: 'Prefix content'
+              mapping:
+                value:
+                  type: text
+                  label: 'Prefix value'
+                  translatable: true
+                format:
+                  type: filter_format
+                  label: 'Prefix format'
+            suffix:
+              type: mapping
+              label: 'Suffix content'
+              mapping:
+                value:
+                  type: text
+                  label: 'Suffix value'
+                  translatable: true
+                format:
+                  type: filter_format
+                  label: 'Suffix format'
+        navigation:
+          type: mapping
+          label: 'Navigation'
+          mapping:
+            paginationDirection:
+              type: string
+              label: 'Pagination direction'
+              translatable: true
+        accessibility:
+          type: mapping
+          label: 'Accessibility'
+          mapping:
+            label:
+              type: text
+              label: 'Accessibility label'
+              translatable: true
+        behavior:
+          type: mapping
+          label: 'Behavior'
+          mapping:
+            direction:
+              type: string
+              label: 'Direction'
+              translatable: true
+        i18n:
+          type: mapping
+          label: 'i18n'
+          mapping:
+            items:
+              type: mapping
+              label: 'i18n strings'
+              mapping:
+                prev:
+                  type: text
+                  label: 'Previous'
+                  translatable: true
+                next:
+                  type: text
+                  label: 'Next'
+                  translatable: true
+                first:
+                  type: text
+                  label: 'First'
+                  translatable: true
+                last:
+                  type: text
+                  label: 'Last'
+                  translatable: true
+                slideX:
+                  type: text
+                  label: 'Slide X'
+                  translatable: true
+                pageX:
+                  type: text
+                  label: 'Page X'
+                  translatable: true
+                play:
+                  type: text
+                  label: 'Play'
+                  translatable: true
+                pause:
+                  type: text
+                  label: 'Pause'
+                  translatable: true
+                carousel:
+                  type: text
+                  label: 'Carousel'
+                  translatable: true
+                select:
+                  type: text
+                  label: 'Select'
+                  translatable: true
+                slide:
+                  type: text
+                  label: 'Slide'
+                  translatable: true
+                slideLabel:
+                  type: text
+                  label: 'Slide label'
+                  translatable: true

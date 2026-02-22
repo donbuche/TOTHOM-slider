@@ -24,21 +24,26 @@ use Drupal\drupal_splide\SplideCarouselInterface;
  *       "add" = "Drupal\drupal_splide\Form\SplideCarouselForm",
  *       "edit" = "Drupal\drupal_splide\Form\SplideCarouselForm",
  *       "delete" = "Drupal\drupal_splide\Form\SplideCarouselDeleteForm"
- *     }
+ *     },
+ *     "translation" = "Drupal\Core\Config\Entity\ConfigEntityTranslationHandler"
  *   },
  *   admin_permission = "administer splide carousels",
  *   config_prefix = "splide_carousel",
  *   config_export = {
  *     "id",
+ *     "langcode",
  *     "label",
+ *     "uuid",
  *     "status",
  *     "options"
  *   },
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
- *     "status" = "status"
+ *     "status" = "status",
+ *     "langcode" = "langcode"
  *   },
+ *   translatable = TRUE,
  *   links = {
  *     "collection" = "/admin/config/content/splide",
  *     "add-form" = "/admin/config/content/splide/add",

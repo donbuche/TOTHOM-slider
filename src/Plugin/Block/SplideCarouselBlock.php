@@ -4,6 +4,7 @@ namespace Drupal\drupal_splide\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\views\Views;
@@ -22,11 +23,19 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
   protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
+   * The entity repository.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected EntityRepositoryInterface $entityRepository;
+
+  /**
    * Constructs a new SplideCarouselBlock instance.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityRepositoryInterface $entity_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityRepository = $entity_repository;
   }
 
   /**
@@ -37,7 +46,8 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('entity.repository')
     );
   }
 
@@ -65,6 +75,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     if (!$carousel || !$carousel->status()) {
       return [];
     }
+    $carousel = $this->entityRepository->getTranslationFromContext($carousel);
 
     $options = $carousel->get('options') ?? [];
     $content = $options['content'] ?? [];
