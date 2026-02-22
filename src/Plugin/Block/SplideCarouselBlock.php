@@ -10,13 +10,7 @@ use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a Splide carousel block (derivative per carousel).
- *
- * @Block(
- *   id = "drupal_splide_carousel_block",
- *   admin_label = @Translation("Splide carousel"),
- *   deriver = "Drupal\drupal_splide\Plugin\Derivative\SplideCarouselBlockDeriver"
- * )
+ * Base class for Splide carousel blocks.
  */
 class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -39,7 +33,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -53,6 +47,16 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
   public function build(): array {
     $carousel_id = $this->getDerivativeId();
     if (!$carousel_id) {
+      return [];
+    }
+    return $this->buildCarousel($carousel_id);
+  }
+
+  /**
+   * Builds the render array for a specific carousel.
+   */
+  protected function buildCarousel(string $carousel_id): array {
+    if ($carousel_id === '') {
       return [];
     }
 
