@@ -1070,12 +1070,6 @@ class SplideCarouselForm extends EntityForm {
     }
 
     $form = parent::form($form, $form_state);
-    $form['cache_notice'] = [
-      '#type' => 'item',
-      '#markup' => '<small class="description">' . $this->t('After creating or updating a carousel, you may need to clear caches to make the block available and apply changes.') . '</small>',
-      '#weight' => 1000,
-    ];
-
     return $form;
   }
 
