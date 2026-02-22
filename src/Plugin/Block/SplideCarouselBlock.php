@@ -86,9 +86,13 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
       '#type' => 'container',
       '#attributes' => $wrapper_attributes,
       'prefix' => $this->buildFormattedText($prefix, 'splide-carousel__prefix'),
-      'track' => [
+      'slider' => [
         '#type' => 'container',
-        '#attributes' => ['class' => ['splide__track']],
+        '#attributes' => ['class' => ['splide__slider']],
+        'track' => [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['splide__track']],
+        ],
       ],
       'suffix' => $this->buildFormattedText($suffix, 'splide-carousel__suffix'),
     ];
@@ -96,6 +100,33 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
       'selector' => $selector['raw'],
       'options' => $this->buildSplideOptions($options),
     ];
+    $splide_options = $build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]['options'] ?? [];
+    $is_autoplay = !empty($splide_options['autoplay']);
+    if ($is_autoplay) {
+      $i18n = $splide_options['i18n'] ?? [];
+      $play_label = $i18n['play'] ?? $this->t('Start autoplay');
+      $pause_label = $i18n['pause'] ?? $this->t('Pause autoplay');
+      $build['toggle'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'button',
+        '#attributes' => [
+          'class' => ['splide__toggle'],
+          'type' => 'button',
+        ],
+        'play' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['splide__toggle__play']],
+          '#value' => $play_label,
+        ],
+        'pause' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['splide__toggle__pause']],
+          '#value' => $pause_label,
+        ],
+      ];
+    }
 
     if ($source === 'node') {
       $items = $content['node']['items'] ?? [];
@@ -107,7 +138,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
         $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($node_ids);
         $view_builder = $this->entityTypeManager->getViewBuilder('node');
 
-        $build['track']['list'] = [
+        $build['slider']['track']['list'] = [
           '#type' => 'html_tag',
           '#tag' => 'ul',
           '#attributes' => ['class' => ['splide__list']],
@@ -121,7 +152,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           $node = $nodes[$nid];
           $bundle = $node->bundle();
           $view_mode = $view_modes[$bundle] ?? 'teaser';
-          $build['track']['list'][$delta] = [
+          $build['slider']['track']['list'][$delta] = [
             '#type' => 'html_tag',
             '#tag' => 'li',
             '#attributes' => ['class' => ['splide__slide']],
@@ -155,13 +186,13 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
             $items[] = $view->render();
           }
 
-          $build['track']['list'] = [
+          $build['slider']['track']['list'] = [
             '#type' => 'html_tag',
             '#tag' => 'ul',
             '#attributes' => ['class' => ['splide__list']],
           ];
           foreach ($items as $delta => $item) {
-            $build['track']['list'][$delta] = [
+            $build['slider']['track']['list'][$delta] = [
               '#type' => 'html_tag',
               '#tag' => 'li',
               '#attributes' => ['class' => ['splide__slide']],
@@ -290,6 +321,11 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
         }
         if ($group === 'i18n' && $key === 'items') {
           $splide_options['i18n'] = $normalized;
+          continue;
+        }
+        if ($group === 'reducedMotion') {
+          $splide_options['reducedMotion'] = $splide_options['reducedMotion'] ?? [];
+          $splide_options['reducedMotion'][$key] = $normalized;
           continue;
         }
         $splide_options[$key] = $normalized;
