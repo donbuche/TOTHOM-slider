@@ -376,11 +376,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     }
 
     if (ctype_digit($value)) {
-      $int_value = (int) $value;
-      if ($int_value === 0 || $int_value === 1) {
-        return (bool) $int_value;
-      }
-      return $int_value;
+      return (int) $value;
     }
     if (is_numeric($value)) {
       $float_value = (float) $value;
