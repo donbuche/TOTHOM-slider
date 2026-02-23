@@ -8,3 +8,10 @@ splide:
   dependencies:
     - core/drupal
     - core/once
+
+admin_form:
+  js:
+    js/drupal-splide-admin.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

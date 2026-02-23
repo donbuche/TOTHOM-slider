@@ -66,31 +66,19 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Prefix content'),
       '#open' => FALSE,
-      '#description' => $this->t('Content shown above the carousel.'),
+      '#description' => $this->t('Optional content displayed above the carousel.'),
     ];
     $form['content']['prefix']['prefix_content'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Prefix content'),
       '#format' => $options['content']['prefix']['format'] ?? NULL,
       '#default_value' => $options['content']['prefix']['value'] ?? '',
-      '#description' => $this->t('Optional formatted text displayed before the carousel.'),
-    ];
-
-    $form['content']['aria_group'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Carousel accessibility'),
-    ];
-    $form['content']['aria_group']['aria_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('ARIA label'),
-      '#default_value' => $options['content']['aria_label'] ?? '',
-      '#description' => $this->t('Accessible label for the carousel container.'),
-      '#parents' => ['content', 'aria_label'],
     ];
 
     $form['content']['semantics_group'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Carousel semantics'),
+      '#type' => 'details',
+      '#title' => $this->t('Carousel accessibility'),
+      '#open' => FALSE,
     ];
     $form['content']['semantics_group']['semantics'] = [
       '#type' => 'radios',
@@ -143,9 +131,52 @@ class SplideCarouselForm extends EntityForm {
       ],
     ];
 
+    $user_input = $form_state->getUserInput();
+    $semantics_input = $user_input['content']['semantics'] ?? NULL;
+    $semantics_current = is_string($semantics_input) ? $semantics_input : ($options['content']['semantics'] ?? 'content');
+    $role_default = $accessibility['role'] ?? '';
+    if ($semantics_current === 'decorative' && $role_default === '') {
+      $role_default = 'group';
+    }
+
+    $form['content']['semantics_group']['role'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Role'),
+      '#default_value' => $role_default,
+      '#description' => $this->optionHelp($this->t('ARIA role for the root element. Use "group" for decorative carousels and leave empty for content carousels.'), 'role'),
+      '#parents' => ['options', 'accessibility', 'role'],
+      '#states' => [
+        'required' => [
+          ':input[name="content[semantics]"]' => ['value' => 'decorative'],
+        ],
+      ],
+    ];
+    $form['content']['semantics_group']['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('ARIA-label'),
+      '#default_value' => $accessibility['label'] ?? '',
+      '#description' => $this->optionHelp($this->t('ARIA label for the root element. Either Label or Labelledby is required.'), 'label'),
+      '#parents' => ['options', 'accessibility', 'label'],
+    ];
+    $form['content']['semantics_group']['labelledby'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('ARIA-labelledby'),
+      '#default_value' => $accessibility['labelledby'] ?? '',
+      '#description' => $this->optionHelp($this->t('ARIA labelledby for the root element.'), 'labelledby'),
+      '#parents' => ['options', 'accessibility', 'labelledby'],
+    ];
+    $form['content']['semantics_group']['focusableNodes'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Focusable nodes'),
+      '#description' => $this->optionHelp($this->t('CSS selectors of focusable elements.'), 'focusablenodes'),
+      '#default_value' => $accessibility['focusableNodes'] ?? 'a, button',
+      '#parents' => ['options', 'accessibility', 'focusableNodes'],
+    ];
+
     $form['content']['source_group'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('Content source'),
+      '#open' => TRUE,
     ];
     $form['content']['source_group']['source'] = [
       '#type' => 'radios',
@@ -354,19 +385,18 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Suffix content'),
       '#open' => FALSE,
-      '#description' => $this->t('Content shown below the carousel.'),
+      '#description' => $this->t('Optional content displayed below the carousel.'),
     ];
     $form['content']['suffix']['suffix_content'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Suffix content'),
       '#format' => $options['content']['suffix']['format'] ?? NULL,
       '#default_value' => $options['content']['suffix']['value'] ?? '',
-      '#description' => $this->t('Optional formatted text displayed after the carousel.'),
     ];
 
     $form['options'] = [
       '#type' => 'details',
-      '#title' => $this->t('Splide options'),
+      '#title' => $this->t('Carousel configuration'),
       '#open' => FALSE,
       '#tree' => TRUE,
     ];
@@ -375,6 +405,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('General'),
       '#open' => FALSE,
+      '#weight' => 0,
     ];
     $form['options']['general']['type'] = [
       '#type' => 'select',
@@ -464,6 +495,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Layout'),
       '#open' => FALSE,
+      '#weight' => 30,
     ];
     $form['options']['layout']['width'] = [
       '#type' => 'textfield',
@@ -549,6 +581,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Navigation'),
       '#open' => FALSE,
+      '#weight' => 10,
     ];
     $form['options']['navigation']['arrows'] = [
       '#type' => 'checkbox',
@@ -608,6 +641,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Autoplay'),
       '#open' => FALSE,
+      '#weight' => 20,
     ];
     $form['options']['autoplay']['autoplay'] = [
       '#type' => 'checkbox',
@@ -644,6 +678,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Lazy load'),
       '#open' => FALSE,
+      '#weight' => 60,
     ];
     $form['options']['lazy']['lazyLoad'] = [
       '#type' => 'select',
@@ -667,6 +702,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Drag & wheel'),
       '#open' => FALSE,
+      '#weight' => 50,
     ];
     $form['options']['drag']['drag'] = [
       '#type' => 'select',
@@ -745,40 +781,11 @@ class SplideCarouselForm extends EntityForm {
       '#description' => $this->optionHelp($this->t('Release wheel control when at the edges.'), 'releasewheel'),
     ];
 
-    $form['options']['accessibility'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Accessibility'),
-      '#open' => FALSE,
-    ];
-    $form['options']['accessibility']['role'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Role'),
-      '#default_value' => $accessibility['role'] ?? '',
-      '#description' => $this->optionHelp($this->t('ARIA role for the root element.'), 'role'),
-    ];
-    $form['options']['accessibility']['label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Label'),
-      '#default_value' => $accessibility['label'] ?? '',
-      '#description' => $this->optionHelp($this->t('ARIA label for the root element.'), 'label'),
-    ];
-    $form['options']['accessibility']['labelledby'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Labelledby'),
-      '#default_value' => $accessibility['labelledby'] ?? '',
-      '#description' => $this->optionHelp($this->t('ARIA labelledby for the root element.'), 'labelledby'),
-    ];
-    $form['options']['accessibility']['focusableNodes'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Focusable nodes'),
-      '#description' => $this->optionHelp($this->t('CSS selectors of focusable elements.'), 'focusablenodes'),
-      '#default_value' => $accessibility['focusableNodes'] ?? '',
-    ];
-
     $form['options']['behavior'] = [
       '#type' => 'details',
       '#title' => $this->t('Behavior'),
       '#open' => FALSE,
+      '#weight' => 80,
     ];
     $form['options']['behavior']['direction'] = [
       '#type' => 'select',
@@ -831,6 +838,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Breakpoints'),
       '#open' => FALSE,
+      '#weight' => 40,
     ];
     $form['options']['breakpoints']['mediaQuery'] = [
       '#type' => 'select',
@@ -891,7 +899,7 @@ class SplideCarouselForm extends EntityForm {
     ];
     $form['options']['breakpoints']['simple_wrapper']['note'] = [
       '#type' => 'item',
-      '#markup' => '<p class="description">' . $this->t('For advanced breakpoint options, switch to JSON mode or configure global options under Splide options.') . '</p>',
+      '#markup' => '<p class="description">' . $this->t('For advanced breakpoint options, switch to JSON mode or configure global options under Carousel configuration.') . '</p>',
     ];
 
     $form['options']['breakpoints']['simple_wrapper']['items'] = [
@@ -982,7 +990,8 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Reduced motion'),
       '#open' => FALSE,
-      '#description' => $this->t('These options apply only when the operating system has "Reduce motion" enabled.'),
+      '#description' => $this->t('These options apply only when the operating system has “Reduce motion” enabled.'),
+      '#weight' => 90,
     ];
     $form['options']['reducedMotion']['speed'] = [
       '#type' => 'number',
@@ -1008,6 +1017,7 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('Classes'),
       '#open' => FALSE,
       '#description' => $this->optionHelp($this->t('Add classes to append to Splide defaults. Default classes are always included. You can enter multiple classes separated by spaces.'), 'classes'),
+      '#weight' => 70,
     ];
     $form['options']['classes']['items'] = [
       '#type' => 'table',
@@ -1041,6 +1051,7 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('i18n'),
       '#open' => FALSE,
       '#description' => $this->optionHelp($this->t('Override Splide’s default interface strings (defaults are in English). Leave blank to keep the defaults.'), 'i18n'),
+      '#weight' => 100,
     ];
     $form['options']['i18n']['items'] = [
       '#type' => 'table',
@@ -1071,6 +1082,7 @@ class SplideCarouselForm extends EntityForm {
     }
 
     $form = parent::form($form, $form_state);
+    $form['#attached']['library'][] = 'drupal_splide/admin_form';
     return $form;
   }
 
@@ -1079,6 +1091,21 @@ class SplideCarouselForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     parent::validateForm($form, $form_state);
+
+    $semantics = $form_state->getValue(['content', 'semantics']) ?? 'content';
+    $role = $form_state->getValue(['options', 'accessibility', 'role']) ?? '';
+    if ($semantics === 'decorative') {
+      $form_state->setValue(['options', 'accessibility', 'role'], 'group');
+    }
+    elseif ($semantics === 'content') {
+      $form_state->setValue(['options', 'accessibility', 'role'], '');
+    }
+
+    $label = $form_state->getValue(['options', 'accessibility', 'label']) ?? '';
+    $labelledby = $form_state->getValue(['options', 'accessibility', 'labelledby']) ?? '';
+    if (trim((string) $label) === '' && trim((string) $labelledby) === '') {
+      $form_state->setErrorByName('options][accessibility][label', $this->t('Provide either Label or Labelledby.'));
+    }
 
     $mode = $form_state->getValue(['options', 'breakpoints', 'mode']) ?? 'json';
     if ($mode !== 'json') {
@@ -1228,11 +1255,11 @@ class SplideCarouselForm extends EntityForm {
       ],
       'play' => [
         'default' => $this->t('Start autoplay'),
-        'usage' => $this->t('aria-label of the autoplay toggle button'),
+        'usage' => $this->t('aria-label of the autoplay toggle button. You can prepend icon markup, e.g. <code>&lt;span class="bi bi-play-circle" aria-hidden="true"&gt;&lt;/span&gt;</code>'),
       ],
       'pause' => [
         'default' => $this->t('Pause autoplay'),
-        'usage' => $this->t('aria-label of the autoplay toggle button'),
+        'usage' => $this->t('aria-label of the autoplay toggle button. You can prepend icon markup, e.g. <code>&lt;span class="bi bi-pause-circle" aria-hidden="true"&gt;&lt;/span&gt;</code>'),
       ],
       'carousel' => [
         'default' => $this->t('carousel'),
@@ -1428,7 +1455,6 @@ class SplideCarouselForm extends EntityForm {
     $prefix_raw = $content_raw['prefix']['prefix_content'] ?? [];
     $suffix_raw = $content_raw['suffix']['suffix_content'] ?? [];
     $content = [
-      'aria_label' => $content_raw['aria_label'] ?? '',
       'semantics' => $content_raw['semantics'] ?? '',
       'source' => $source,
       'prefix' => [

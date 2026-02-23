@@ -23,10 +23,6 @@ drupal_splide.splide_carousel.*:
           type: mapping
           label: 'Content'
           mapping:
-            aria_label:
-              type: text
-              label: 'ARIA label'
-              translatable: true
             prefix:
               type: mapping
               label: 'Prefix content'
