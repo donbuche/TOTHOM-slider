@@ -95,7 +95,7 @@ class SplideCarouselForm extends EntityForm {
     $form['content']['semantics_group']['semantics'] = [
       '#type' => 'radios',
       '#parents' => ['content', 'semantics'],
-      '#description' => $this->t('Use “Content carousel” when the slides are part of the main content (e.g. products, cards, gallery). Use “Decorative carousel” when the slides are purely ornamental; it will be rendered with decorative semantics.'),
+      '#description' => $this->t('Use "Content carousel" when the slides are part of the main content (e.g. products, cards, gallery). Use "Decorative carousel" when the slides are purely ornamental; it will be rendered with decorative semantics.'),
       '#options' => [
         'content' => $this->t('Content carousel'),
         'decorative' => $this->t('Decorative carousel'),
@@ -336,13 +336,15 @@ class SplideCarouselForm extends EntityForm {
         . '<p>1. Go to Structure → Views and click on "<a target="_blank" href="/admin/structure/views/add">Add view</a>".</p>'
         . '<ul>'
         . '<li>' . $this->t('Choose the content type you want to show in the carousel.') . '</li>'
-        . '<li>' . $this->t('Add an Embed display.') . '</li>'
-        . '<li>' . $this->t('Pagination is ignored for Splide list displays.') . '</li>'
+        . '<li>' . $this->t('Do not create a Page or Block display at this step.') . '</li>'
+        . '<li>' . $this->t('Click "Save and edit".') . '</li>'
         . '</ul>'
         . '<p>2. ' . $this->t('Once in the View configuration page:') . '</p>'
         . '<ul>'
-        . '<li>' . $this->t('Set “Format” to “Splide list”.') . '</li>'
-        . '<li>' . $this->t('Set “Show” to “Content” or “Fields”.') . '</li>'
+        . '<li>' . $this->t('Add an Embed display.') . '</li>'
+        . '<li>' . $this->t('Set "Format" to "Splide list".') . '</li>'
+        . '<li>' . $this->t('Set "Show" to "Content" or "Fields".') . '</li>'
+        . '<li>' . $this->t('Finish configuring the view as needed (filters, sorting, etc.).') . '</li>'
         . '<li>' . $this->t('Save the view.') . '</li>'
         . '</ul>'
         . '<p>3. ' . $this->t('Refresh this page and select it from the dropdown above.') . '</p>',
@@ -980,7 +982,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Reduced motion'),
       '#open' => FALSE,
-      '#description' => $this->t('These options apply only when the operating system has “Reduce motion” enabled.'),
+      '#description' => $this->t('These options apply only when the operating system has "Reduce motion" enabled.'),
     ];
     $form['options']['reducedMotion']['speed'] = [
       '#type' => 'number',
