@@ -143,6 +143,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
       ];
     }
 
+    $skip_library = FALSE;
     if ($source === 'node') {
       $items = $content['node']['items'] ?? [];
       $view_modes = $content['node']['view_modes'] ?? [];
@@ -186,32 +187,31 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           $view->preExecute();
           $view->execute();
 
-          $items = [];
-          $style_render = $view->style_plugin->render();
-          if (is_array($style_render)) {
-            if (!empty($style_render['#rows'])) {
-              $items = $style_render['#rows'];
-            }
-            elseif (array_is_list($style_render) && !empty($style_render[0]['#rows'])) {
-              $items = $style_render[0]['#rows'];
-            }
+          $display_handler = $view->displayHandlers->get($display);
+          if (!$display_handler || $display_handler->getPluginId() !== 'embed') {
+            unset($build['slider']);
+            unset($build['toggle']);
+            unset($build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]);
+            $skip_library = TRUE;
+            $build['message'] = [
+              '#type' => 'markup',
+              '#markup' => '<p class="description">' . $this->t('Incorrect Views display used. You must use an Embed display with the Splide list style for this carousel to work.') . '</p>',
+            ];
+            return $build;
           }
 
-          if (!$items) {
-            $items[] = $view->render();
+          $style_plugin_id = $view->style_plugin->getPluginId();
+          if ($style_plugin_id === 'splide_list') {
+            $build['slider']['track']['list'] = $view->style_plugin->render();
           }
-
-          $build['slider']['track']['list'] = [
-            '#type' => 'html_tag',
-            '#tag' => 'ul',
-            '#attributes' => ['class' => ['splide__list']],
-          ];
-          foreach ($items as $delta => $item) {
-            $build['slider']['track']['list'][$delta] = [
-              '#type' => 'html_tag',
-              '#tag' => 'li',
-              '#attributes' => ['class' => ['splide__slide']],
-              'content' => $item,
+          else {
+            unset($build['slider']);
+            unset($build['toggle']);
+            unset($build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]);
+            $skip_library = TRUE;
+            $build['message'] = [
+              '#type' => 'markup',
+              '#markup' => '<p class="description">' . $this->t('Incorrect Views style used. You must use the Splide list style for this carousel to work.') . '</p>',
             ];
           }
 
@@ -230,7 +230,9 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     }
 
     $cache = CacheableMetadata::createFromObject($carousel);
-    $build['#attached']['library'][] = 'drupal_splide/splide';
+    if (!$skip_library) {
+      $build['#attached']['library'][] = 'drupal_splide/splide';
+    }
     $cache->applyTo($build);
 
     return $build;

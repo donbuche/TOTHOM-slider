@@ -33,7 +33,7 @@ function drupal_splide_help($route_name, $route_match) {
   $output[] = '<p>' . t('Under "Carousel content", pick how slides are built:') . '</p>';
   $output[] = '<ul>'
     . '<li>' . t('<strong>Content provided by nodes</strong>: select one or more node types, optionally select a view mode per type, and choose the specific nodes to display.') . '</li>'
-    . '<li>' . t('<strong>Content provided by Views</strong>: choose a Views block display to render slides.') . '</li>'
+    . '<li>' . t('<strong>Content provided by Views</strong>: choose a Views embed display using the “Splide list” style to render slides. Pagination is ignored for Splide list displays.') . '</li>'
     . '</ul>';
 
   $output[] = '<h3>' . t('4. Prefix and suffix content') . '</h3>';
