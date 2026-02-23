@@ -187,6 +187,19 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           $view->preExecute();
           $view->execute();
 
+          $display_handler = $view->displayHandlers->get($display);
+          if (!$display_handler || $display_handler->getPluginId() !== 'embed') {
+            unset($build['slider']);
+            unset($build['toggle']);
+            unset($build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]);
+            $skip_library = TRUE;
+            $build['message'] = [
+              '#type' => 'markup',
+              '#markup' => '<p class="description">' . $this->t('Incorrect Views display used. You must use an Embed display with the Splide list style for this carousel to work.') . '</p>',
+            ];
+            return $build;
+          }
+
           $style_plugin_id = $view->style_plugin->getPluginId();
           if ($style_plugin_id === 'splide_list') {
             $build['slider']['track']['list'] = $view->style_plugin->render();

@@ -308,7 +308,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Content provided by Views'),
       '#open' => FALSE,
-      '#description' => $this->t('Render slides from a Views block display.'),
+      '#description' => $this->t('Render slides from a Views embed display.'),
       '#parents' => ['content', 'views'],
       '#states' => [
         'visible' => [
@@ -325,7 +325,7 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('View [display]'),
       '#options' => $this->getViewDisplayOptions(),
       '#default_value' => $default_view,
-      '#description' => $this->t('Select the view and display to use for this carousel.'),
+      '#description' => $this->t('Select the view and embed display to use for this carousel.'),
       '#empty_option' => $this->t('- Select a view display -'),
     ];
     $form['content']['source_group']['views']['view_help'] = [
@@ -336,14 +336,13 @@ class SplideCarouselForm extends EntityForm {
         . '<p>1. Go to Structure → Views and click on "<a target="_blank" href="/admin/structure/views/add">Add view</a>".</p>'
         . '<ul>'
         . '<li>' . $this->t('Choose the content type you want to show in the carousel.') . '</li>'
-        . '<li>' . $this->t('Add a Block display.') . '</li>'
-        . '<li>' . $this->t('Do not use pagination.') . '</li>'
+        . '<li>' . $this->t('Add an Embed display.') . '</li>'
+        . '<li>' . $this->t('Pagination is ignored for Splide list displays.') . '</li>'
         . '</ul>'
         . '<p>2. ' . $this->t('Once in the View configuration page:') . '</p>'
         . '<ul>'
-        . '<li>' . $this->t('Under “Display format”, pick “Unformatted list” (any format will work, but “Unformatted list” works best).') . '</li>'
-        . '<li>' . $this->t('Set “Show” to “Fields” (do not use “Content”).') . '</li>'
-        . '<li>' . $this->t('Add the fields you want to appear in each slide (e.g. title, image, body).') . '</li>'
+        . '<li>' . $this->t('Set “Format” to “Splide list”.') . '</li>'
+        . '<li>' . $this->t('Set “Show” to “Content” or “Fields”.') . '</li>'
         . '<li>' . $this->t('Save the view.') . '</li>'
         . '</ul>'
         . '<p>3. ' . $this->t('Refresh this page and select it from the dropdown above.') . '</p>',
@@ -1311,7 +1310,7 @@ class SplideCarouselForm extends EntityForm {
         if (empty($display['display_plugin'])) {
           continue;
         }
-        if ($display['display_plugin'] !== 'block') {
+        if ($display['display_plugin'] !== 'embed') {
           continue;
         }
         $display_label = $display['display_title'] ?? $display_id;
