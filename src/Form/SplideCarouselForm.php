@@ -52,7 +52,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Enabled'),
       '#default_value' => $carousel->status(),
-      '#description' => $this->t('If unchecked, the block will not render.'),
+      '#description' => $this->t('If unchecked, the carousel will not be displayed.'),
     ];
 
     $form['content'] = [
@@ -1104,7 +1104,89 @@ class SplideCarouselForm extends EntityForm {
     $label = $form_state->getValue(['options', 'accessibility', 'label']) ?? '';
     $labelledby = $form_state->getValue(['options', 'accessibility', 'labelledby']) ?? '';
     if (trim((string) $label) === '' && trim((string) $labelledby) === '') {
-      $form_state->setErrorByName('options][accessibility][label', $this->t('Provide either Label or Labelledby.'));
+      $form_state->setErrorByName('options][accessibility][label', $this->t('Provide either ARIA-label or ARIA-labelledby.'));
+    }
+
+    $source = $form_state->getValue(['content', 'source']) ?? '';
+    if ($source === 'node') {
+      $allowed_bundles = $form_state->getValue(['content', 'source_group', 'node', 'allowed_bundles']) ?? [];
+      $allowed_bundles = array_filter($allowed_bundles, static function ($value, $key) {
+        return is_string($key) && $value && !str_ends_with($key, '_view_mode');
+      }, ARRAY_FILTER_USE_BOTH);
+      if (empty($allowed_bundles)) {
+        $form_state->setErrorByName('content][source_group][node][allowed_bundles', $this->t('Select at least one allowed content type.'));
+      }
+
+      $rows = $form_state->getValue(['content', 'source_group', 'node', 'items_wrapper', 'items']) ?? [];
+      $has_node = FALSE;
+      foreach ($rows as $row) {
+        if (!empty($row['node'])) {
+          $has_node = TRUE;
+          break;
+        }
+      }
+      if (!empty($allowed_bundles) && !$has_node) {
+        $form_state->setErrorByName('content][source_group][node][items_wrapper][items', $this->t('Select at least one node.'));
+      }
+    }
+    elseif ($source === 'views') {
+      $view_display = $form_state->getValue(['content', 'views', 'view_display']) ?? '';
+      if ($view_display === '' || $view_display === NULL) {
+        $form_state->setErrorByName('content][views][view_display', $this->t('Select a view display.'));
+      }
+    }
+
+    $type = $form_state->getValue(['options', 'general', 'type']) ?? '';
+    $per_page = $form_state->getValue(['options', 'general', 'perPage']);
+    if ($type === 'fade' && (string) $per_page !== '1') {
+      $form_state->setErrorByName('options][general][perPage', $this->t('Per page must be 1 when Type is fade.'));
+    }
+    if ($per_page !== '' && $per_page !== NULL && (float) $per_page < 1) {
+      $form_state->setErrorByName('options][general][perPage', $this->t('Per page must be 1 or greater.'));
+    }
+
+    $per_move = $form_state->getValue(['options', 'general', 'perMove']);
+    if ($per_move !== '' && $per_move !== NULL && (float) $per_move < 1) {
+      $form_state->setErrorByName('options][general][perMove', $this->t('Per move must be 1 or greater.'));
+    }
+
+    $start = $form_state->getValue(['options', 'general', 'start']);
+    if ($start !== '' && $start !== NULL && (float) $start < 0) {
+      $form_state->setErrorByName('options][general][start', $this->t('Start index must be 0 or greater.'));
+    }
+
+    $gap = $form_state->getValue(['options', 'general', 'gap']);
+    if (is_string($gap) && trim($gap) !== '' && is_numeric($gap) && (float) $gap < 0) {
+      $form_state->setErrorByName('options][general][gap', $this->t('Gap cannot be negative.'));
+    }
+
+    $rewind = $form_state->getValue(['options', 'general', 'rewind']) ?? FALSE;
+    if ($type === 'loop' && $rewind) {
+      $form_state->setErrorByName('options][general][rewind', $this->t('Rewind cannot be enabled when Type is loop.'));
+    }
+
+    $arrows = $form_state->getValue(['options', 'navigation', 'arrows']) ?? FALSE;
+    $pagination = $form_state->getValue(['options', 'navigation', 'pagination']) ?? FALSE;
+    $drag = $form_state->getValue(['options', 'drag', 'drag']) ?? 'true';
+    $wheel = $form_state->getValue(['options', 'drag', 'wheel']) ?? 'false';
+    $keyboard = $form_state->getValue(['options', 'behavior', 'keyboard']) ?? 'false';
+    if (!$arrows && !$pagination && $drag === 'false' && $wheel === 'false' && $keyboard === 'false') {
+      $form_state->setErrorByName('options][navigation][arrows', $this->t('Enable at least one navigation method (arrows, pagination, drag, wheel, or keyboard).'));
+    }
+
+    $autoplay = $form_state->getValue(['options', 'autoplay', 'autoplay']) ?? FALSE;
+    $interval = $form_state->getValue(['options', 'autoplay', 'interval']);
+    if ($autoplay && ($interval === '' || $interval === NULL || (float) $interval <= 0)) {
+      $form_state->setErrorByName('options][autoplay][interval', $this->t('Interval must be greater than 0 when autoplay is enabled.'));
+    }
+
+    $i18n_values = $form_state->getValue(['options', 'i18n', 'items']) ?? [];
+    foreach ($this->getSplideI18nHelp() as $key => $meta) {
+      $value = $i18n_values[$key]['text'] ?? '';
+      if (trim((string) $value) === '') {
+        $message = $this->t('The i18n value for %key is required.', ['%key' => $key]);
+        $form_state->setErrorByName("options][i18n][items][$key][text", $message);
+      }
     }
 
     $mode = $form_state->getValue(['options', 'breakpoints', 'mode']) ?? 'json';
@@ -1118,6 +1200,23 @@ class SplideCarouselForm extends EntityForm {
     json_decode($json, TRUE);
     if (json_last_error() !== JSON_ERROR_NONE) {
       $form_state->setErrorByName('options][breakpoints][items', $this->t('Breakpoints JSON must be valid JSON.'));
+    }
+
+    if ($form_state->hasAnyErrors()) {
+      return;
+    }
+
+    if ($autoplay) {
+      $speed = $form_state->getValue(['options', 'general', 'speed']);
+      if ($speed !== '' && $speed !== NULL && $interval !== '' && $interval !== NULL && (float) $speed >= (float) $interval) {
+        $this->messenger()->addWarning($this->t('Speed is greater than or equal to Interval. Autoplay may not have time to settle between slides.'));
+      }
+
+      $pause_on_hover = $form_state->getValue(['options', 'autoplay', 'pauseOnHover']) ?? FALSE;
+      $pause_on_focus = $form_state->getValue(['options', 'autoplay', 'pauseOnFocus']) ?? FALSE;
+      if (!$pause_on_hover && !$pause_on_focus) {
+        $this->messenger()->addWarning($this->t('Autoplay is enabled without Pause on hover or Pause on focus. This may be less accessible.'));
+      }
     }
   }
 
