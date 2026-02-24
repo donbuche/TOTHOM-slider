@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_splide\Plugin\views\style;
+namespace Drupal\tothom_slider\Plugin\views\style;
 
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -8,17 +8,17 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\views\Plugin\views\row\EntityRow;
 
 /**
- * Style plugin to render Splide list markup.
+ * Style plugin to render TOTHOM Slider markup.
  *
  * @ViewsStyle(
- *   id = "splide_list",
- *   title = @Translation("Splide list"),
- *   help = @Translation("Renders rows as a Splide list (ul.splide__list)."),
+ *   id = "tothom_slider",
+ *   title = @Translation("TOTHOM Slider"),
+ *   help = @Translation("Renders rows as a TOTHOM Slider list (ul.splide__list)."),
  *   theme = "views_view_unformatted",
  *   display_types = {"normal"}
  * )
  */
-class SplideList extends StylePluginBase {
+class TothomSlider extends StylePluginBase {
 
   /**
    * {@inheritdoc}

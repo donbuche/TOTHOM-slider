@@ -1,0 +1,31 @@
+entity.tothom_slider.collection:
+  path: '/admin/content/sliders'
+  defaults:
+    _entity_list: 'tothom_slider'
+    _title: 'TOTHOM sliders'
+  requirements:
+    _permission: 'administer tothom sliders'
+
+entity.tothom_slider.add_form:
+  path: '/admin/content/sliders/add'
+  defaults:
+    _entity_form: 'tothom_slider.add'
+    _title: 'Add slider'
+  requirements:
+    _permission: 'administer tothom sliders'
+
+entity.tothom_slider.edit_form:
+  path: '/admin/content/sliders/{tothom_slider}'
+  defaults:
+    _entity_form: 'tothom_slider.edit'
+    _title: 'Edit slider'
+  requirements:
+    _permission: 'administer tothom sliders'
+
+entity.tothom_slider.delete_form:
+  path: '/admin/content/sliders/{tothom_slider}/delete'
+  defaults:
+    _entity_form: 'tothom_slider.delete'
+    _title: 'Delete slider'
+  requirements:
+    _permission: 'administer tothom sliders'

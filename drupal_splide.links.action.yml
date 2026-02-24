@@ -1,5 +1,0 @@
-drupal_splide.carousel_add:
-  route_name: entity.splide_carousel.add_form
-  title: 'Add carousel'
-  appears_on:
-    - entity.splide_carousel.collection

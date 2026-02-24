@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_splide\Plugin\Block;
+namespace Drupal\tothom_slider\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
@@ -11,9 +11,9 @@ use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Base class for Splide carousel blocks.
+ * Base class for TOTHOM Slider blocks.
  */
-class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class TothomSliderBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity type manager.
@@ -30,7 +30,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
   protected EntityRepositoryInterface $entityRepository;
 
   /**
-   * Constructs a new SplideCarouselBlock instance.
+   * Constructs a new TothomSliderBlock instance.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityRepositoryInterface $entity_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -63,14 +63,14 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
   }
 
   /**
-   * Builds the render array for a specific carousel.
+   * Builds the render array for a specific slider.
    */
   protected function buildCarousel(string $carousel_id): array {
     if ($carousel_id === '') {
       return [];
     }
 
-    $storage = $this->entityTypeManager->getStorage('splide_carousel');
+    $storage = $this->entityTypeManager->getStorage('tothom_slider');
     $carousel = $storage->load($carousel_id);
     if (!$carousel || !$carousel->status()) {
       return [];
@@ -100,7 +100,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
     $build = [
       '#type' => 'container',
       '#attributes' => $wrapper_attributes,
-      'prefix' => $this->buildFormattedText($prefix, 'splide-carousel__prefix'),
+      'prefix' => $this->buildFormattedText($prefix, 'splide-slider__prefix'),
       'slider' => [
         '#type' => 'container',
         '#attributes' => ['class' => ['splide__slider']],
@@ -109,13 +109,13 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           '#attributes' => ['class' => ['splide__track']],
         ],
       ],
-      'suffix' => $this->buildFormattedText($suffix, 'splide-carousel__suffix'),
+      'suffix' => $this->buildFormattedText($suffix, 'splide-slider__suffix'),
     ];
-    $build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id] = [
+    $build['#attached']['drupalSettings']['tothomSlider']['sliders'][$carousel_id] = [
       'selector' => $selector['raw'],
       'options' => $this->buildSplideOptions($options),
     ];
-    $splide_options = $build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]['options'] ?? [];
+    $splide_options = $build['#attached']['drupalSettings']['tothomSlider']['sliders'][$carousel_id]['options'] ?? [];
     $is_autoplay = !empty($splide_options['autoplay']);
     if ($is_autoplay) {
       $i18n = $splide_options['i18n'] ?? [];
@@ -191,27 +191,27 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
           if (!$display_handler || $display_handler->getPluginId() !== 'embed') {
             unset($build['slider']);
             unset($build['toggle']);
-            unset($build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]);
+            unset($build['#attached']['drupalSettings']['tothomSlider']['sliders'][$carousel_id]);
             $skip_library = TRUE;
             $build['message'] = [
               '#type' => 'markup',
-              '#markup' => '<p class="description">' . $this->t('Incorrect Views display used. You must use an Embed display with the Splide list style for this carousel to work.') . '</p>',
+              '#markup' => '<p class="description">' . $this->t('Incorrect Views display used. You must use an Embed display with the TOTHOM Slider style for this slider to work.') . '</p>',
             ];
             return $build;
           }
 
           $style_plugin_id = $view->style_plugin->getPluginId();
-          if ($style_plugin_id === 'splide_list') {
+          if ($style_plugin_id === 'tothom_slider') {
             $build['slider']['track']['list'] = $view->style_plugin->render();
           }
           else {
             unset($build['slider']);
             unset($build['toggle']);
-            unset($build['#attached']['drupalSettings']['drupalSplide']['carousels'][$carousel_id]);
+            unset($build['#attached']['drupalSettings']['tothomSlider']['sliders'][$carousel_id]);
             $skip_library = TRUE;
             $build['message'] = [
               '#type' => 'markup',
-              '#markup' => '<p class="description">' . $this->t('Incorrect Views style used. You must use the Splide list style for this carousel to work.') . '</p>',
+              '#markup' => '<p class="description">' . $this->t('Incorrect Views style used. You must use the TOTHOM Slider style for this slider to work.') . '</p>',
             ];
           }
 
@@ -231,7 +231,7 @@ class SplideCarouselBlock extends BlockBase implements ContainerFactoryPluginInt
 
     $cache = CacheableMetadata::createFromObject($carousel);
     if (!$skip_library) {
-      $build['#attached']['library'][] = 'drupal_splide/splide';
+      $build['#attached']['library'][] = 'tothom_slider/splide';
     }
     $cache->applyTo($build);
 

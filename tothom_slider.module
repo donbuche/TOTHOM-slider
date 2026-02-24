@@ -2,21 +2,21 @@
 
 /**
  * @file
- * Module hooks for Drupal Splide.
+ * Module hooks for TOTHOM Slider.
  */
 
 /**
  * Implements hook_help().
  */
-function drupal_splide_help($route_name, $route_match) {
-  if ($route_name !== 'help.page.drupal_splide') {
+function tothom_slider_help($route_name, $route_match) {
+  if ($route_name !== 'help.page.tothom_slider') {
     return NULL;
   }
 
   $output = [];
 
-  $output[] = '<h2>' . t('Drupal Splide') . '</h2>';
-  $output[] = '<p>' . t('Drupal Splide provides configurable Splide.js carousels as reusable configuration entities. You create carousels in the admin UI, then place them as blocks (by using the base block called "Splide carousel (select)").') . '</p>';
+  $output[] = '<h2>' . t('TOTHOM Slider') . '</h2>';
+  $output[] = '<p>' . t('TOTHOM Slider provides configurable Splide.js sliders as reusable configuration entities. You create sliders in the admin UI, then place them as blocks (by using the base block called "TOTHOM Slider").') . '</p>';
 
   $output[] = '<h3>' . t('1. Splide.js library files') . '</h3>';
   $output[] = '<p>' . t('This module expects Splide.js assets to be placed in the Drupal libraries directory. Download Splide.js and ensure the files below exist:') . '</p>';
@@ -24,20 +24,20 @@ function drupal_splide_help($route_name, $route_match) {
     . '<li>' . t('CSS: /web/libraries/splidejs/splide/dist/css/splide.min.css') . '</li>'
     . '<li>' . t('JS: /web/libraries/splidejs/splide/dist/js/splide.min.js') . '</li>'
     . '</ul>';
-  $output[] = '<p>' . t('These paths must match the entries in drupal_splide.libraries.yml, otherwise the carousel will not load.') . '</p>';
+  $output[] = '<p>' . t('These paths must match the entries in tothom_slider.libraries.yml, otherwise the slider will not load.') . '</p>';
 
-  $output[] = '<h3>' . t('2. Create a carousel') . '</h3>';
-  $output[] = '<p>' . t('Go to the Splide carousels page and create a new carousel. Each carousel stores its own content settings and Splide options. You can edit and reuse the same carousel in multiple places.') . '</p>';
+  $output[] = '<h3>' . t('2. Create a slider') . '</h3>';
+  $output[] = '<p>' . t('Go to the TOTHOM sliders page and create a new slider. Each slider stores its own content settings and Splide options. You can edit and reuse the same slider in multiple places.') . '</p>';
 
   $output[] = '<h3>' . t('3. Choose the content source') . '</h3>';
-  $output[] = '<p>' . t('Under "Carousel content", pick how slides are built:') . '</p>';
+  $output[] = '<p>' . t('Under "Slider content", pick how slides are built:') . '</p>';
   $output[] = '<ul>'
     . '<li>' . t('<strong>Content provided by nodes</strong>: select one or more node types, optionally select a view mode per type, and choose the specific nodes to display.') . '</li>'
-    . '<li>' . t('<strong>Content provided by Views</strong>: choose a Views embed display using the “Splide list” style to render slides. Pagination is ignored for Splide list displays.') . '</li>'
+    . '<li>' . t('<strong>Content provided by Views</strong>: choose a Views embed display using the “TOTHOM Slider” style to render slides. Pagination is ignored for TOTHOM Slider displays.') . '</li>'
     . '</ul>';
 
   $output[] = '<h3>' . t('4. Prefix and suffix content') . '</h3>';
-  $output[] = '<p>' . t('You can add formatted text that appears above (Prefix content) or below (Suffix content) the carousel. This is useful for headings, captions, or CTA blocks.') . '</p>';
+  $output[] = '<p>' . t('You can add formatted text that appears above (Prefix content) or below (Suffix content) the slider. This is useful for headings, captions, or CTA blocks.') . '</p>';
 
   $output[] = '<h3>' . t('5. Splide options') . '</h3>';
   $output[] = '<p>' . t('All core Splide options are available in grouped accordions (General, Layout, Navigation, Autoplay, Drag & wheel, Accessibility, Behavior, etc.). Each option includes a link to the official Splide documentation for precise behavior and defaults.') . '</p>';
@@ -62,10 +62,10 @@ function drupal_splide_help($route_name, $route_match) {
   $output[] = '<h3>' . t('Reduced motion') . '</h3>';
   $output[] = '<p>' . t('Reduced motion options apply only when the user\'s operating system has "Reduce motion" enabled. They do not affect normal playback.') . '</p>';
 
-  $output[] = '<h3>' . t('Placing carousels as blocks') . '</h3>';
-  $output[] = '<p>' . t('Use the block “Splide carousel (select)” to place a carousel in Layout Builder. This block is a single, reusable block that contains a selector for choosing which carousel to render.') . '</p>';
-  $output[] = '<p>' . t('Because the selector is part of the block configuration, you do not need to create a new block definition for each carousel. This means new carousels appear immediately in the selector without clearing caches, and you can reuse the same block type across multiple layouts.') . '</p>';
-  $output[] = '<p>' . t('To use it: add the block, open its configuration, pick a carousel from the dropdown, and save. The block title is optional and can be hidden per placement.') . '</p>';
+  $output[] = '<h3>' . t('Placing sliders as blocks') . '</h3>';
+  $output[] = '<p>' . t('Use the block “TOTHOM Slider” to place a slider in Layout Builder. This block is a single, reusable block that contains a selector for choosing which slider to render.') . '</p>';
+  $output[] = '<p>' . t('Because the selector is part of the block configuration, you do not need to create a new block definition for each slider. This means new sliders appear immediately in the selector without clearing caches, and you can reuse the same block type across multiple layouts.') . '</p>';
+  $output[] = '<p>' . t('To use it: add the block, open its configuration, pick a slider from the dropdown, and save. The block title is optional and can be hidden per placement.') . '</p>';
 
   return implode("\n", $output);
 }

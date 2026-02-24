@@ -1,14 +1,14 @@
 <?php
 
-namespace Drupal\drupal_splide;
+namespace Drupal\tothom_slider;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * List builder for Splide carousels.
+ * List builder for TOTHOM Sliders.
  */
-class SplideCarouselListBuilder extends ConfigEntityListBuilder {
+class TothomSliderListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -24,7 +24,7 @@ class SplideCarouselListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    /** @var \Drupal\drupal_splide\SplideCarouselInterface $entity */
+    /** @var \Drupal\tothom_slider\TothomSliderInterface $entity */
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
     $row['status'] = $entity->status() ? $this->t('Enabled') : $this->t('Disabled');
