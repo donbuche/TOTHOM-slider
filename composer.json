@@ -1,6 +1,6 @@
 {
-  "name": "donbuche/drupal_splide",
-  "description": "Provides configurable Splide.js carousels as config entities.",
+  "name": "donbuche/tothom_slider",
+  "description": "Provides configurable Splide.js sliders as config entities.",
   "type": "drupal-module",
   "license": "GPL-2.0-or-later",
   "authors": [

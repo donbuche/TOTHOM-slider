@@ -1,0 +1,11 @@
+tothom_slider.sliders_tab:
+  route_name: entity.tothom_slider.collection
+  title: 'Sliders'
+  base_route: system.admin_content
+  weight: 30
+
+tothom_slider.sliders_add:
+  route_name: entity.tothom_slider.add_form
+  title: 'Add slider'
+  base_route: entity.tothom_slider.collection
+  weight: 10

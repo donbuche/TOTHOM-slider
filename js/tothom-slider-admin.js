@@ -2,10 +2,10 @@
   'use strict';
 
   /**
-   * Synchronize the Role field with the selected carousel semantics.
+   * Synchronize the Role field with the selected slider semantics.
    *
-   * - Decorative carousel: force role to "group" and require it.
-   * - Content carousel: clear role and make it optional.
+   * - Decorative slider: force role to "group" and require it.
+   * - Content slider: clear role and make it optional.
    *
    * @param {HTMLInputElement|null} roleInput
    *   The role textfield input.
@@ -26,10 +26,10 @@
     }
   }
 
-  Drupal.behaviors.drupalSplideAdmin = {
+  Drupal.behaviors.tothomSliderAdmin = {
     attach: function (context) {
       // Attach once per form to avoid duplicate listeners.
-      once('drupal-splide-admin', 'form', context).forEach(function (form) {
+      once('tothom-slider-admin', 'form', context).forEach(function (form) {
         var semanticsInput = form.querySelector('input[name="content[semantics]"]:checked') || form.querySelector('input[name="content[semantics]"]');
         var roleInput = form.querySelector('input[name="options[accessibility][role]"]');
         if (!semanticsInput || !roleInput) {

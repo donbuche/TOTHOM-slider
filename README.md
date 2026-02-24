@@ -1,11 +1,11 @@
-# Drupal Splide
+# TOTHOM Slider
 
 ## Table of contents
 1. [Overview](#overview)
 2. [Requirements](#requirements)
 3. [Install](#install)
 4. [Admin paths](#admin-paths)
-5. [Create a carousel](#create-a-carousel)
+5. [Create a slider](#create-a-slider)
 6. [Content sources](#content-sources)
 7. [Prefix and suffix content](#prefix-and-suffix-content)
 8. [Splide options](#splide-options)
@@ -22,39 +22,39 @@
 
 ### 1. Overview
 <a id="overview"></a>
-Drupal Splide provides configurable Splide.js carousels as config entities. You create carousels in the admin UI and place them as blocks. The recommended block is “Splide carousel (select)”, which lets you choose a carousel from a dropdown and avoids block-definition cache issues.
+TOTHOM Slider provides configurable Splide.js sliders as config entities. You create sliders in the admin UI and place them as blocks. The recommended block is “TOTHOM Slider”, which lets you choose a slider from a dropdown and avoids block-definition cache issues.
 
 ### 2. Requirements
 <a id="requirements"></a>
-The Splide.js library files must exist in `web/libraries` and match the paths configured in `drupal_splide.libraries.yml`.
+The Splide.js library files must exist in `web/libraries` and match the paths configured in `tothom_slider.libraries.yml`.
 
 ### 3. Install
 <a id="install"></a>
-Step 1: `composer require donbuche/drupal_splide`  
-Step 2: `drush en drupal_splide -y`  
+Step 1: `composer require donbuche/tothom_slider`  
+Step 2: `drush en tothom_slider -y`  
 Step 3: `drush cr`
 
 ### 4. Admin paths
 <a id="admin-paths"></a>
-Carousels administration: `/admin/content/carousels`
+Sliders administration: `/admin/content/sliders`
 
-### 5. Create a carousel
-<a id="create-a-carousel"></a>
-Step 1: Go to `/admin/content/carousels`.  
-Step 2: Click “Add carousel”.  
+### 5. Create a slider
+<a id="create-a-slider"></a>
+Step 1: Go to `/admin/content/sliders`.  
+Step 2: Click “Add slider”.  
 Step 3: Fill in content source and options.  
-Step 4: Save and place it with the “Splide carousel (select)” block.
+Step 4: Save and place it with the “TOTHOM Slider” block.
 
 ### 6. Content sources
 <a id="content-sources"></a>
 You can build slides from Nodes or from Views.
 
 Nodes: select one or more content types, optionally pick a view mode per type, then add specific nodes.  
-Views: select an **Embed** display using the “Splide list” style.
+Views: select an **Embed** display using the “TOTHOM Slider” style.
 
 ### 7. Prefix and suffix content
 <a id="prefix-and-suffix-content"></a>
-You can add formatted text above (Prefix content) and below (Suffix content) the carousel. This is useful for headings, captions, or CTAs.
+You can add formatted text above (Prefix content) and below (Suffix content) the slider. This is useful for headings, captions, or CTAs.
 
 ### 8. Splide options
 <a id="splide-options"></a>
@@ -88,37 +88,37 @@ Reduced motion options apply only when the operating system has “Reduce motion
 ### 14. Views integration (Embed only)
 <a id="views-integration-embed-only"></a>
 Step 1: Create a View with an **Embed** display.  
-Step 2: Set **Format** to “Splide list”.  
+Step 2: Set **Format** to “TOTHOM Slider”.  
 Step 3: Set **Show** to “Content” or “Fields”.  
 Step 4: Set pager to “Display all items”.  
-Step 5: Select this display in the carousel form.
+Step 5: Select this display in the slider form.
 
-Pagination is ignored for the Splide list style. The style forces a full result set to be rendered.
+Pagination is ignored for the TOTHOM Slider style. The style forces a full result set to be rendered.
 
 ### 15. Blocks and Layout Builder
 <a id="blocks-and-layout-builder"></a>
-Use the block “Splide carousel (select)”.  
+Use the block “TOTHOM Slider”.  
 Step 1: Add the block in Layout Builder.  
 Step 2: Open block configuration.  
-Step 3: Select a carousel from the dropdown.  
+Step 3: Select a slider from the dropdown.  
 Step 4: Save.
 
 ### 16. Caching
 <a id="caching"></a>
-Carousel output is cacheable and invalidated when the carousel configuration changes. You should not need to clear caches when updating an existing carousel.
+Slider output is cacheable and invalidated when the slider configuration changes. You should not need to clear caches when updating an existing slider.
 
 ### 17. Troubleshooting
 <a id="troubleshooting"></a>
-If the carousel does not initialize:
+If the slider does not initialize:
 
 Step 1: Verify Splide assets exist at:  
 `/web/libraries/splidejs/splide/dist/js/splide.min.js`  
 `/web/libraries/splidejs/splide/dist/css/splide.min.css`
 
-Step 2: If using Views, confirm the display is **Embed** and the style is **Splide list**.  
-Step 3: Ensure the carousel is enabled and the block is placed.  
+Step 2: If using Views, confirm the display is **Embed** and the style is **TOTHOM Slider**.  
+Step 3: Ensure the slider is enabled and the block is placed.  
 Step 4: Clear caches if you have recently added the module or changed routes.
 
 ### 18. Export and import
 <a id="export-and-import"></a>
-Carousels are config entities, so they can be exported and imported with `drush cex` and `drush cim`.
+Sliders are config entities, so they can be exported and imported with `drush cex` and `drush cim`.

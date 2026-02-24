@@ -1,0 +1,13 @@
+tothom_slider.sliders:
+  title: 'Sliders'
+  description: 'Manage sliders.'
+  route_name: entity.tothom_slider.collection
+  parent: system.admin_content
+  weight: 50
+
+tothom_slider.sliders_add:
+  title: 'Add slider'
+  description: 'Create a new slider.'
+  route_name: entity.tothom_slider.add_form
+  parent: tothom_slider.sliders
+  weight: 10

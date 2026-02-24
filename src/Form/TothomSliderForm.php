@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupal_splide\Form;
+namespace Drupal\tothom_slider\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -9,15 +9,15 @@ use Drupal\node\Entity\NodeType;
 use Drupal\views\Views;
 
 /**
- * Form controller for Splide carousel add/edit forms.
+ * Form controller for TOTHOM Slider add/edit forms.
  */
-class SplideCarouselForm extends EntityForm {
+class TothomSliderForm extends EntityForm {
 
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
-    /** @var \Drupal\drupal_splide\Entity\SplideCarousel $carousel */
+    /** @var \Drupal\tothom_slider\Entity\TothomSlider $carousel */
     $carousel = $this->entity;
     $options = $carousel->get('options') ?? [];
     $general = $options['general'] ?? [];
@@ -33,7 +33,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => $this->t('Administrative title'),
       '#default_value' => $carousel->label(),
-      '#description' => $this->t('Internal name used to identify this carousel in the admin UI.'),
+      '#description' => $this->t('Internal name used to identify this slider in the admin UI.'),
       '#required' => TRUE,
     ];
 
@@ -41,9 +41,9 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'machine_name',
       '#title' => $this->t('Machine name'),
       '#default_value' => $carousel->id(),
-      '#description' => $this->t('Unique machine-readable ID for this carousel.'),
+      '#description' => $this->t('Unique machine-readable ID for this slider.'),
       '#machine_name' => [
-        'exists' => '\Drupal\drupal_splide\Entity\SplideCarousel::load',
+        'exists' => '\Drupal\tothom_slider\Entity\TothomSlider::load',
       ],
       '#disabled' => !$carousel->isNew(),
     ];
@@ -52,12 +52,12 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Enabled'),
       '#default_value' => $carousel->status(),
-      '#description' => $this->t('If unchecked, the carousel will not be displayed.'),
+      '#description' => $this->t('If unchecked, the slider will not be displayed.'),
     ];
 
     $form['content'] = [
       '#type' => 'details',
-      '#title' => $this->t('Carousel content'),
+      '#title' => $this->t('Slider content'),
       '#open' => FALSE,
       '#tree' => TRUE,
     ];
@@ -66,7 +66,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Prefix content'),
       '#open' => FALSE,
-      '#description' => $this->t('Optional content displayed above the carousel.'),
+      '#description' => $this->t('Optional content displayed above the slider.'),
     ];
     $form['content']['prefix']['prefix_content'] = [
       '#type' => 'text_format',
@@ -77,16 +77,16 @@ class SplideCarouselForm extends EntityForm {
 
     $form['content']['semantics_group'] = [
       '#type' => 'details',
-      '#title' => $this->t('Carousel accessibility'),
+      '#title' => $this->t('Slider accessibility'),
       '#open' => FALSE,
     ];
     $form['content']['semantics_group']['semantics'] = [
       '#type' => 'radios',
       '#parents' => ['content', 'semantics'],
-      '#description' => $this->t('Use "Content carousel" when the slides are part of the main content (e.g. products, cards, gallery). Use "Decorative carousel" when the slides are purely ornamental; it will be rendered with decorative semantics.'),
+      '#description' => $this->t('Use "Content slider" when the slides are part of the main content (e.g. products, cards, gallery). Use "Decorative slider" when the slides are purely ornamental; it will be rendered with decorative semantics.'),
       '#options' => [
-        'content' => $this->t('Content carousel'),
-        'decorative' => $this->t('Decorative carousel'),
+        'content' => $this->t('Content slider'),
+        'decorative' => $this->t('Decorative slider'),
       ],
       '#default_value' => $options['content']['semantics'] ?? 'content',
     ];
@@ -95,7 +95,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Show HTML example'),
       '#open' => FALSE,
-      '#markup' => '<p><strong>HTML example for Content carousels</strong></p><pre><code>&lt;section class="splide" aria-label="Splide Basic HTML Example"&gt;
+      '#markup' => '<p><strong>HTML example for Content sliders</strong></p><pre><code>&lt;section class="splide" aria-label="Splide Basic HTML Example"&gt;
   &lt;div class="splide__track"&gt;
     &lt;ul class="splide__list"&gt;
       &lt;li class="splide__slide"&gt;Slide 01&lt;/li&gt;
@@ -115,7 +115,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Show HTML example'),
       '#open' => FALSE,
-      '#markup' => '<p><strong>HTML example for Decorative carousels</strong></p><pre><code>&lt;div class="splide" role="group" aria-label="Splide Basic HTML Example"&gt;
+      '#markup' => '<p><strong>HTML example for Decorative sliders</strong></p><pre><code>&lt;div class="splide" role="group" aria-label="Splide Basic HTML Example"&gt;
   &lt;div class="splide__track"&gt;
     &lt;ul class="splide__list"&gt;
       &lt;li class="splide__slide"&gt;Slide 01&lt;/li&gt;
@@ -143,7 +143,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => $this->t('Role'),
       '#default_value' => $role_default,
-      '#description' => $this->optionHelp($this->t('ARIA role for the root element. Use "group" for decorative carousels and leave empty for content carousels.'), 'role'),
+      '#description' => $this->optionHelp($this->t('ARIA role for the root element. Use "group" for decorative sliders and leave empty for content sliders.'), 'role'),
       '#parents' => ['options', 'accessibility', 'role'],
       '#states' => [
         'required' => [
@@ -178,6 +178,10 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('Content source'),
       '#open' => TRUE,
     ];
+    $source_default = $options['content']['source'] ?? 'node';
+    if (!in_array($source_default, ['node', 'views'], TRUE)) {
+      $source_default = 'node';
+    }
     $form['content']['source_group']['source'] = [
       '#type' => 'radios',
       '#parents' => ['content', 'source'],
@@ -186,7 +190,7 @@ class SplideCarouselForm extends EntityForm {
         'node' => $this->t('Content provided by nodes'),
         'views' => $this->t('Content provided by Views'),
       ],
-      '#default_value' => $options['content']['source'] ?? '',
+      '#default_value' => $source_default,
     ];
 
     $form['content']['source_group']['node'] = [
@@ -356,7 +360,7 @@ class SplideCarouselForm extends EntityForm {
       '#title' => $this->t('View [display]'),
       '#options' => $this->getViewDisplayOptions(),
       '#default_value' => $default_view,
-      '#description' => $this->t('Select the view and embed display to use for this carousel.'),
+      '#description' => $this->t('Select the view and embed display to use for this slider.'),
       '#empty_option' => $this->t('- Select a view display -'),
     ];
     $form['content']['source_group']['views']['view_help'] = [
@@ -366,14 +370,14 @@ class SplideCarouselForm extends EntityForm {
       '#markup' => ''
         . '<p>1. Go to Structure → Views and click on "<a target="_blank" href="/admin/structure/views/add">Add view</a>".</p>'
         . '<ul>'
-        . '<li>' . $this->t('Choose the content type you want to show in the carousel.') . '</li>'
+        . '<li>' . $this->t('Choose the content type you want to show in the slider.') . '</li>'
         . '<li>' . $this->t('Do not create a Page or Block display at this step.') . '</li>'
         . '<li>' . $this->t('Click "Save and edit".') . '</li>'
         . '</ul>'
         . '<p>2. ' . $this->t('Once in the View configuration page:') . '</p>'
         . '<ul>'
         . '<li>' . $this->t('Add an Embed display.') . '</li>'
-        . '<li>' . $this->t('Set "Format" to "Splide list".') . '</li>'
+        . '<li>' . $this->t('Set "Format" to "TOTHOM Slider".') . '</li>'
         . '<li>' . $this->t('Set "Show" to "Content" or "Fields".') . '</li>'
         . '<li>' . $this->t('Finish configuring the view as needed (filters, sorting, etc.).') . '</li>'
         . '<li>' . $this->t('Save the view.') . '</li>'
@@ -385,7 +389,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Suffix content'),
       '#open' => FALSE,
-      '#description' => $this->t('Optional content displayed below the carousel.'),
+      '#description' => $this->t('Optional content displayed below the slider.'),
     ];
     $form['content']['suffix']['suffix_content'] = [
       '#type' => 'text_format',
@@ -396,7 +400,7 @@ class SplideCarouselForm extends EntityForm {
 
     $form['options'] = [
       '#type' => 'details',
-      '#title' => $this->t('Carousel configuration'),
+      '#title' => $this->t('Slider configuration'),
       '#open' => FALSE,
       '#tree' => TRUE,
     ];
@@ -416,7 +420,7 @@ class SplideCarouselForm extends EntityForm {
         'fade' => $this->t('fade'),
       ],
       '#default_value' => $general['type'] ?? 'slide',
-      '#description' => $this->optionHelp($this->t('The carousel transition type.'), 'type'),
+      '#description' => $this->optionHelp($this->t('The slider transition type.'), 'type'),
     ];
     $form['options']['general']['start'] = [
       '#type' => 'number',
@@ -500,13 +504,13 @@ class SplideCarouselForm extends EntityForm {
     $form['options']['layout']['width'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Width'),
-      '#description' => $this->optionHelp($this->t('Carousel width (CSS size).'), 'width'),
+      '#description' => $this->optionHelp($this->t('Slider width (CSS size).'), 'width'),
       '#default_value' => $layout['width'] ?? '',
     ];
     $form['options']['layout']['height'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Height'),
-      '#description' => $this->optionHelp($this->t('Carousel height (CSS size).'), 'height'),
+      '#description' => $this->optionHelp($this->t('Slider height (CSS size).'), 'height'),
       '#default_value' => $layout['height'] ?? '',
     ];
     $form['options']['layout']['fixedWidth'] = [
@@ -525,7 +529,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'number',
       '#step' => '0.01',
       '#title' => $this->t('Height ratio'),
-      '#description' => $this->optionHelp($this->t('Slide height based on carousel width.'), 'heightratio'),
+      '#description' => $this->optionHelp($this->t('Slide height based on slider width.'), 'heightratio'),
       '#default_value' => $layout['heightRatio'] ?? '',
     ];
     $form['options']['layout']['autoWidth'] = [
@@ -538,7 +542,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Auto height'),
       '#default_value' => $layout['autoHeight'] ?? FALSE,
-      '#description' => $this->optionHelp($this->t('Let the carousel height adapt to slides.'), 'autoheight'),
+      '#description' => $this->optionHelp($this->t('Let the slider height adapt to slides.'), 'autoheight'),
     ];
     $form['options']['layout']['cover'] = [
       '#type' => 'checkbox',
@@ -628,7 +632,7 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Is navigation'),
       '#default_value' => $navigation['isNavigation'] ?? FALSE,
-      '#description' => $this->optionHelp($this->t('Make this carousel act as navigation for another. Disable pagination if you enable this option. Otherwise roles and ARIA attributes will be messed up.'), 'isnavigation'),
+      '#description' => $this->optionHelp($this->t('Make this slider act as navigation for another. Disable pagination if you enable this option. Otherwise roles and ARIA attributes will be messed up.'), 'isnavigation'),
     ];
     $form['options']['navigation']['focusableNodes'] = [
       '#type' => 'textfield',
@@ -659,13 +663,13 @@ class SplideCarouselForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Pause on hover'),
       '#default_value' => $autoplay['pauseOnHover'] ?? TRUE,
-      '#description' => $this->optionHelp($this->t('Pause autoplay when the pointer is over the carousel.'), 'pauseonhover'),
+      '#description' => $this->optionHelp($this->t('Pause autoplay when the pointer is over the slider.'), 'pauseonhover'),
     ];
     $form['options']['autoplay']['pauseOnFocus'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pause on focus'),
       '#default_value' => $autoplay['pauseOnFocus'] ?? TRUE,
-      '#description' => $this->optionHelp($this->t('Pause autoplay when the carousel or controls receive focus.'), 'pauseonfocus'),
+      '#description' => $this->optionHelp($this->t('Pause autoplay when the slider or controls receive focus.'), 'pauseonfocus'),
     ];
     $form['options']['autoplay']['resetProgress'] = [
       '#type' => 'checkbox',
@@ -831,7 +835,7 @@ class SplideCarouselForm extends EntityForm {
         'completely' => $this->t('completely'),
       ],
       '#default_value' => $behavior['destroy'] ?? '',
-      '#description' => $this->optionHelp($this->t('Destroy the carousel under certain conditions.'), 'destroy'),
+      '#description' => $this->optionHelp($this->t('Destroy the slider under certain conditions.'), 'destroy'),
     ];
 
     $form['options']['breakpoints'] = [
@@ -899,7 +903,7 @@ class SplideCarouselForm extends EntityForm {
     ];
     $form['options']['breakpoints']['simple_wrapper']['note'] = [
       '#type' => 'item',
-      '#markup' => '<p class="description">' . $this->t('For advanced breakpoint options, switch to JSON mode or configure global options under Carousel configuration.') . '</p>',
+      '#markup' => '<p class="description">' . $this->t('For advanced breakpoint options, switch to JSON mode or configure global options under Slider configuration.') . '</p>',
     ];
 
     $form['options']['breakpoints']['simple_wrapper']['items'] = [
@@ -1082,7 +1086,7 @@ class SplideCarouselForm extends EntityForm {
     }
 
     $form = parent::form($form, $form_state);
-    $form['#attached']['library'][] = 'drupal_splide/admin_form';
+    $form['#attached']['library'][] = 'tothom_slider/admin_form';
     return $form;
   }
 
@@ -1108,7 +1112,10 @@ class SplideCarouselForm extends EntityForm {
     }
 
     $source = $form_state->getValue(['content', 'source']) ?? '';
-    if ($source === 'node') {
+    if ($source === '' || $source === NULL) {
+      $form_state->setErrorByName('content][source', $this->t('Select a content source.'));
+    }
+    elseif ($source === 'node') {
       $allowed_bundles = $form_state->getValue(['content', 'source_group', 'node', 'allowed_bundles']) ?? [];
       $allowed_bundles = array_filter($allowed_bundles, static function ($value, $key) {
         return is_string($key) && $value && !str_ends_with($key, '_view_mode');
@@ -1607,8 +1614,8 @@ class SplideCarouselForm extends EntityForm {
 
     $this->messenger()->addStatus(
       $status === SAVED_NEW
-        ? $this->t('Created the %label carousel.', ['%label' => $this->entity->label()])
-        : $this->t('Updated the %label carousel.', ['%label' => $this->entity->label()])
+        ? $this->t('Created the %label slider.', ['%label' => $this->entity->label()])
+        : $this->t('Updated the %label slider.', ['%label' => $this->entity->label()])
     );
 
     $form_state->setRedirectUrl($this->entity->toUrl('collection'));

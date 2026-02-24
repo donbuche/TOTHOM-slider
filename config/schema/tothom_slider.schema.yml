@@ -1,6 +1,6 @@
-drupal_splide.splide_carousel.*:
+tothom_slider.tothom_slider.*:
   type: config_entity
-  label: 'Splide carousel'
+  label: 'TOTHOM Slider'
   mapping:
     id:
       type: string
@@ -17,11 +17,11 @@ drupal_splide.splide_carousel.*:
       label: 'Enabled'
     options:
       type: mapping
-      label: 'Carousel configuration'
+      label: 'Slider configuration'
       mapping:
         content:
           type: mapping
-          label: 'Carousel content'
+          label: 'Slider content'
           mapping:
             prefix:
               type: mapping
@@ -55,7 +55,7 @@ drupal_splide.splide_carousel.*:
               translatable: true
         accessibility:
           type: mapping
-          label: 'Carousel accessibility'
+          label: 'Slider accessibility'
           mapping:
             label:
               type: text
@@ -115,7 +115,7 @@ drupal_splide.splide_carousel.*:
                   translatable: true
                 carousel:
                   type: text
-                  label: 'Carousel'
+                  label: 'Slider'
                   translatable: true
                 select:
                   type: text

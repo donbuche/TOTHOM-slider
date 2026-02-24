@@ -1,0 +1,5 @@
+tothom_slider.slider_add:
+  route_name: entity.tothom_slider.add_form
+  title: 'Add slider'
+  appears_on:
+    - entity.tothom_slider.collection
