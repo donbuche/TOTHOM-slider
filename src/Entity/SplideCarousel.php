@@ -48,7 +48,9 @@ use Drupal\drupal_splide\SplideCarouselInterface;
  *     "collection" = "/admin/content/carousels",
  *     "add-form" = "/admin/content/carousels/add",
  *     "edit-form" = "/admin/content/carousels/{splide_carousel}",
- *     "delete-form" = "/admin/content/carousels/{splide_carousel}/delete"
+ *     "delete-form" = "/admin/content/carousels/{splide_carousel}/delete",
+ *     "translation-overview" = "/admin/content/carousels/{splide_carousel}/translate",
+ *     "translate-form" = "/admin/content/carousels/{splide_carousel}/translate/{language}"
  *   }
  * )
  */
