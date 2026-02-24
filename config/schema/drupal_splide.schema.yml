@@ -17,16 +17,12 @@ drupal_splide.splide_carousel.*:
       label: 'Enabled'
     options:
       type: mapping
-      label: 'Splide options'
+      label: 'Carousel configuration'
       mapping:
         content:
           type: mapping
-          label: 'Content'
+          label: 'Carousel content'
           mapping:
-            aria_label:
-              type: text
-              label: 'ARIA label'
-              translatable: true
             prefix:
               type: mapping
               label: 'Prefix content'
@@ -59,11 +55,15 @@ drupal_splide.splide_carousel.*:
               translatable: true
         accessibility:
           type: mapping
-          label: 'Accessibility'
+          label: 'Carousel accessibility'
           mapping:
             label:
               type: text
-              label: 'Accessibility label'
+              label: 'ARIA-label'
+              translatable: true
+            labelledby:
+              type: text
+              label: 'ARIA-labelledby'
               translatable: true
         behavior:
           type: mapping
