@@ -1,0 +1,7 @@
+MAINTAINERS
+-----------
+
+Current maintainers:
+
+ * Joan Galtés i Moreno (donbuche) (https://drupal.org/user/602318)
+ * Fernando Castro Merchán (webfer) (https://www.drupal.org/user/3810026)
