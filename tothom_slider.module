@@ -69,3 +69,33 @@ function tothom_slider_help($route_name, $route_match) {
 
   return implode("\n", $output);
 }
+
+/**
+ * Implements hook_requirements().
+ */
+function tothom_slider_requirements($phase) {
+  $requirements = [];
+
+  if ($phase !== 'runtime') {
+    return $requirements;
+  }
+
+  $css_path = DRUPAL_ROOT . '/libraries/splidejs/splide/dist/css/splide.min.css';
+  $js_path = DRUPAL_ROOT . '/libraries/splidejs/splide/dist/js/splide.min.js';
+  $css_exists = file_exists($css_path);
+  $js_exists = file_exists($js_path);
+
+  $requirements['tothom_slider_splidejs'] = [
+    'title' => t('TOTHOM Slider: Splide.js assets'),
+    'value' => $css_exists && $js_exists ? t('Found') : t('Missing'),
+    'description' => $css_exists && $js_exists
+      ? t('Splide.js assets were found in the expected location.')
+      : t('Missing Splide.js assets. Expected: @css and @js', [
+        '@css' => $css_path,
+        '@js' => $js_path,
+      ]),
+    'severity' => $css_exists && $js_exists ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+  ];
+
+  return $requirements;
+}

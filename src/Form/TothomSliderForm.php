@@ -1116,15 +1116,15 @@ class TothomSliderForm extends EntityForm {
       $form_state->setErrorByName('content][source', $this->t('Select a content source.'));
     }
     elseif ($source === 'node') {
-      $allowed_bundles = $form_state->getValue(['content', 'source_group', 'node', 'allowed_bundles']) ?? [];
+      $allowed_bundles = $form_state->getValue(['content', 'node', 'allowed_bundles']) ?? [];
       $allowed_bundles = array_filter($allowed_bundles, static function ($value, $key) {
         return is_string($key) && $value && !str_ends_with($key, '_view_mode');
       }, ARRAY_FILTER_USE_BOTH);
       if (empty($allowed_bundles)) {
-        $form_state->setErrorByName('content][source_group][node][allowed_bundles', $this->t('Select at least one allowed content type.'));
+        $form_state->setErrorByName('content][node][allowed_bundles', $this->t('Select at least one allowed content type.'));
       }
 
-      $rows = $form_state->getValue(['content', 'source_group', 'node', 'items_wrapper', 'items']) ?? [];
+      $rows = $form_state->getValue(['content', 'node', 'items_wrapper', 'items']) ?? [];
       $has_node = FALSE;
       foreach ($rows as $row) {
         if (!empty($row['node'])) {
@@ -1133,7 +1133,7 @@ class TothomSliderForm extends EntityForm {
         }
       }
       if (!empty($allowed_bundles) && !$has_node) {
-        $form_state->setErrorByName('content][source_group][node][items_wrapper][items', $this->t('Select at least one node.'));
+        $form_state->setErrorByName('content][node][items_wrapper][items', $this->t('Select at least one node.'));
       }
     }
     elseif ($source === 'views') {
