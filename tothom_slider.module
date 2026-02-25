@@ -16,7 +16,8 @@ function tothom_slider_help($route_name, $route_match) {
   $output = [];
 
   $output[] = '<h2>' . t('TOTHOM Slider') . '</h2>';
-  $output[] = '<p>' . t('TOTHOM Slider provides configurable Splide.js sliders as reusable configuration entities. You create sliders in the admin UI, then place them as blocks (by using the base block called "TOTHOM Slider").') . '</p>';
+  $output[] = '<p>' . t('TOTHOM Slider provides accessible, highly configurable sliders/carousels for Drupal, powered by Splide.js. The name "TOTHOM" comes from a Catalan word that means "everyone", a small nod to inclusivity that fits right in with an accessible-first slider.') . '</p>';
+  $output[] = '<p>' . t('You create sliders in the admin UI and place them as blocks. The recommended block is "TOTHOM Slider", which lets you choose a slider from a dropdown and avoids block-definition cache issues.') . '</p>';
 
   $output[] = '<h3>' . t('1. Splide.js library files') . '</h3>';
   $output[] = '<p>' . t('This module expects Splide.js assets to be placed in the Drupal libraries directory. Download Splide.js and ensure the files below exist:') . '</p>';

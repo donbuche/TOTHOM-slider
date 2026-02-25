@@ -1,7 +1,7 @@
 name: TOTHOM Slider
 type: module
-description: 'Provides configurable Splide.js sliders as config entities.'
+description: 'Accessible, highly configurable sliders/carousels for Drupal, powered by Splide.js.'
 core_version_requirement: '^10 || ^11'
-package: Custom
+package: Sliders
 dependencies:
   - drupal:views
