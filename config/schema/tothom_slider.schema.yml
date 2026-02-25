@@ -23,6 +23,12 @@ tothom_slider.tothom_slider.*:
           type: mapping
           label: 'Slider content'
           mapping:
+            semantics:
+              type: string
+              label: 'Semantics'
+            source:
+              type: string
+              label: 'Content source'
             prefix:
               type: mapping
               label: 'Prefix content'
@@ -45,18 +51,47 @@ tothom_slider.tothom_slider.*:
                 format:
                   type: filter_format
                   label: 'Suffix format'
-        navigation:
-          type: mapping
-          label: 'Navigation'
-          mapping:
-            paginationDirection:
-              type: string
-              label: 'Pagination direction'
-              translatable: true
+            node:
+              type: mapping
+              label: 'Node content'
+              mapping:
+                allowed_bundles:
+                  type: mapping
+                  label: 'Allowed bundles'
+                  mapping: { }
+                items:
+                  type: sequence
+                  label: 'Selected nodes'
+                  sequence:
+                    type: mapping
+                    mapping:
+                      id:
+                        type: integer
+                        label: 'Node ID'
+                      weight:
+                        type: integer
+                        label: 'Weight'
+                view_modes:
+                  type: mapping
+                  label: 'View mode overrides'
+                  mapping: { }
+            views:
+              type: mapping
+              label: 'Views content'
+              mapping:
+                view_machine_name:
+                  type: string
+                  label: 'View machine name'
+                view_display_name:
+                  type: string
+                  label: 'View display name'
         accessibility:
           type: mapping
           label: 'Slider accessibility'
           mapping:
+            role:
+              type: string
+              label: 'ARIA role'
             label:
               type: text
               label: 'ARIA-label'
@@ -65,6 +100,187 @@ tothom_slider.tothom_slider.*:
               type: text
               label: 'ARIA-labelledby'
               translatable: true
+            focusableNodes:
+              type: text
+              label: 'Focusable nodes'
+        general:
+          type: mapping
+          label: 'General'
+          mapping:
+            type:
+              type: string
+              label: 'Type'
+            start:
+              type: integer
+              label: 'Start index'
+            perPage:
+              type: integer
+              label: 'Per page'
+            perMove:
+              type: integer
+              label: 'Per move'
+            gap:
+              type: string
+              label: 'Gap'
+            padding:
+              type: string
+              label: 'Padding'
+            focus:
+              type: string
+              label: 'Focus'
+            rewind:
+              type: boolean
+              label: 'Rewind'
+            rewindSpeed:
+              type: integer
+              label: 'Rewind speed'
+            rewindByDrag:
+              type: boolean
+              label: 'Rewind by drag'
+            speed:
+              type: integer
+              label: 'Speed'
+            easing:
+              type: string
+              label: 'Easing'
+            easingFunc:
+              type: string
+              label: 'Easing function'
+        layout:
+          type: mapping
+          label: 'Layout'
+          mapping:
+            width:
+              type: string
+              label: 'Width'
+            height:
+              type: string
+              label: 'Height'
+            fixedWidth:
+              type: string
+              label: 'Fixed width'
+            fixedHeight:
+              type: string
+              label: 'Fixed height'
+            heightRatio:
+              type: float
+              label: 'Height ratio'
+            autoWidth:
+              type: boolean
+              label: 'Auto width'
+            autoHeight:
+              type: boolean
+              label: 'Auto height'
+            cover:
+              type: boolean
+              label: 'Cover'
+            trimSpace:
+              type: boolean
+              label: 'Trim space'
+            omitEnd:
+              type: boolean
+              label: 'Omit end'
+            clones:
+              type: integer
+              label: 'Clones'
+            cloneStatus:
+              type: boolean
+              label: 'Clone status'
+        navigation:
+          type: mapping
+          label: 'Navigation'
+          mapping:
+            arrows:
+              type: boolean
+              label: 'Arrows'
+            pagination:
+              type: boolean
+              label: 'Pagination'
+            paginationKeyboard:
+              type: boolean
+              label: 'Pagination keyboard'
+            paginationDirection:
+              type: string
+              label: 'Pagination direction'
+              translatable: true
+            arrowPath:
+              type: text
+              label: 'Arrow path'
+            slideFocus:
+              type: boolean
+              label: 'Slide focus'
+            isNavigation:
+              type: boolean
+              label: 'Is navigation'
+            focusableNodes:
+              type: text
+              label: 'Focusable nodes'
+        autoplay:
+          type: mapping
+          label: 'Autoplay'
+          mapping:
+            autoplay:
+              type: boolean
+              label: 'Autoplay'
+            interval:
+              type: integer
+              label: 'Interval'
+            pauseOnHover:
+              type: boolean
+              label: 'Pause on hover'
+            pauseOnFocus:
+              type: boolean
+              label: 'Pause on focus'
+            resetProgress:
+              type: boolean
+              label: 'Reset progress'
+        lazy:
+          type: mapping
+          label: 'Lazy load'
+          mapping:
+            lazyLoad:
+              type: string
+              label: 'Lazy load'
+            preloadPages:
+              type: integer
+              label: 'Preload pages'
+        drag:
+          type: mapping
+          label: 'Drag & wheel'
+          mapping:
+            drag:
+              type: string
+              label: 'Drag'
+            snap:
+              type: boolean
+              label: 'Snap'
+            noDrag:
+              type: text
+              label: 'No drag'
+            dragMinThreshold:
+              type: string
+              label: 'Drag min threshold'
+            flickPower:
+              type: integer
+              label: 'Flick power'
+            flickMaxPages:
+              type: integer
+              label: 'Flick max pages'
+            waitForTransition:
+              type: boolean
+              label: 'Wait for transition'
+            wheel:
+              type: string
+              label: 'Wheel'
+            wheelMinThreshold:
+              type: integer
+              label: 'Wheel min threshold'
+            wheelSleep:
+              type: integer
+              label: 'Wheel sleep'
+            releaseWheel:
+              type: boolean
+              label: 'Release wheel'
         behavior:
           type: mapping
           label: 'Behavior'
@@ -73,6 +289,52 @@ tothom_slider.tothom_slider.*:
               type: string
               label: 'Direction'
               translatable: true
+            updateOnMove:
+              type: boolean
+              label: 'Update on move'
+            keyboard:
+              type: string
+              label: 'Keyboard'
+            live:
+              type: string
+              label: 'Live'
+            destroy:
+              type: string
+              label: 'Destroy'
+        breakpoints:
+          type: mapping
+          label: 'Breakpoints'
+          mapping:
+            mediaQuery:
+              type: string
+              label: 'Media query'
+            mode:
+              type: string
+              label: 'Editor mode'
+            items:
+              type: text
+              label: 'Breakpoints JSON'
+        reducedMotion:
+          type: mapping
+          label: 'Reduced motion'
+          mapping:
+            speed:
+              type: integer
+              label: 'Speed'
+            rewindSpeed:
+              type: integer
+              label: 'Rewind speed'
+            autoplay:
+              type: boolean
+              label: 'Autoplay'
+        classes:
+          type: mapping
+          label: 'Classes'
+          mapping:
+            items:
+              type: mapping
+              label: 'Class overrides'
+              mapping: { }
         i18n:
           type: mapping
           label: 'i18n'
